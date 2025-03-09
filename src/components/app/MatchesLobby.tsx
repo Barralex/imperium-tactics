@@ -94,7 +94,6 @@ const MatchesLobby: React.FC = () => {
   // Manejar la entrada a una partida
   const handleEnterMatch = (match: Match) => {
     if (!isAuthenticated || !user) {
-      // Si no está autenticado, podría redirigir a login
       return
     }
 
@@ -291,9 +290,6 @@ const MatchesLobby: React.FC = () => {
       ) : (
         <div className="space-y-4">
           {matches.map((match: Match) => {
-            // Determinar si el usuario actual es uno de los jugadores
-            const currentPlayerId =
-              user?.['https://hasura.io/jwt/claims']?.['x-hasura-user-id']
             const isPlayer1 = match.player1_id === currentPlayerId
             const isPlayer2 = match.player2_id === currentPlayerId
             const isFullMatch = match.player2_id !== null

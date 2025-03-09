@@ -43,7 +43,7 @@ export const JOIN_MATCH = gql`
   mutation JoinMatch($matchId: uuid!, $player2_id: uuid!) {
     update_matches_by_pk(
       pk_columns: { id: $matchId }
-      _set: { player2_id: $player2_id, status: "playing" }
+      _set: { player2_id: $player2_id }
     ) {
       id
       status
