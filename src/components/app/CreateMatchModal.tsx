@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 interface CreateMatchModalProps {
   isOpen: boolean
   onClose: () => void
-  onSubmit: (name: string) => void
+  onSubmit: (name: string, totalUnits: number) => void
   isLoading: boolean
 }
 
@@ -15,6 +15,7 @@ const CreateMatchModal: React.FC<CreateMatchModalProps> = ({
   isLoading,
 }) => {
   const [name, setName] = useState('')
+  const [totalUnits, setTotalUnits] = useState(5)
   const [error, setError] = useState('')
 
   // Si el modal no está abierto, no renderizar nada
@@ -35,24 +36,24 @@ const CreateMatchModal: React.FC<CreateMatchModalProps> = ({
       return
     }
 
-    // Enviar el nombre de la sala al componente padre
-    onSubmit(name)
+    onSubmit(name, totalUnits)
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4 text-gray-700">
-          Crear nueva sala
+    <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+      <div className="bg-gray-900 border border-amber-900 rounded-lg p-6 w-full max-w-md">
+        <h2 className="text-xl font-bold mb-4 text-amber-500">
+          Crear nueva Campaña
         </h2>
 
         <form onSubmit={handleSubmit}>
+          {/* Campo para el nombre de la sala */}
           <div className="mb-4">
             <label
               htmlFor="matchName"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-amber-400 font-medium mb-2"
             >
-              Nombre de la sala
+              Nombre de la Campaña
             </label>
             <input
               id="matchName"
@@ -62,32 +63,69 @@ const CreateMatchModal: React.FC<CreateMatchModalProps> = ({
                 setName(e.target.value)
                 setError('') // Limpiar el error al escribir
               }}
-              className={`w-full px-3 text-gray-700 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+              className={`w-full px-3 py-2 border bg-gray-800 text-white ${
                 error
-                  ? 'border-red-500 focus:ring-red-200'
-                  : 'border-gray-300 focus:ring-blue-200'
-              }`}
-              placeholder="Ingresa un nombre para tu sala"
+                  ? 'border-red-500 focus:ring-red-400'
+                  : 'border-gray-700 focus:ring-amber-500'
+              } rounded-md focus:outline-none focus:ring-2`}
+              placeholder="Ingresa un nombre para tu campaña"
               disabled={isLoading}
             />
-            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
           </div>
+
+          {/* Selector de unidades - Solo visual por ahora */}
+          <div className="mb-6">
+            <label
+              htmlFor="totalUnits"
+              className="block text-amber-400 font-medium mb-2"
+            >
+              Unidades Disponibles
+            </label>
+
+            <input
+              id="totalUnits"
+              type="range"
+              min="1"
+              max="10"
+              value={totalUnits}
+              onChange={(e) => {
+                setTotalUnits(parseInt(e.target.value))
+              }}
+              className="w-full accent-amber-500 mb-2"
+            />
+
+            <div className="flex justify-between mb-2">
+              <span className="text-sm text-gray-400">Mínimo: 1</span>
+              <span className="text-lg font-bold text-amber-500">
+                {totalUnits}
+              </span>
+              <span className="text-sm text-gray-400">Máximo: 10</span>
+            </div>
+
+            <p className="text-sm text-gray-400">
+              Cada jugador tendrá {totalUnits} unidades para desplegar en el
+              campo de batalla.
+            </p>
+          </div>
+
+          {/* Mensaje de error */}
+          {error && <p className="mb-4 text-sm text-red-500">{error}</p>}
 
           <div className="flex justify-end space-x-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition-colors"
+              className="px-4 py-2 border border-gray-700 rounded-md text-gray-300 hover:bg-gray-800 transition-colors"
               disabled={isLoading}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition-colors disabled:opacity-70"
+              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-black font-bold rounded-md transition-colors disabled:opacity-70"
               disabled={isLoading}
             >
-              {isLoading ? 'Creando...' : 'Crear sala'}
+              {isLoading ? 'Creando...' : 'Iniciar Campaña'}
             </button>
           </div>
         </form>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useSubscription, useMutation } from '@apollo/client'
 import {
   GET_MATCH_SUBSCRIPTION,
@@ -11,12 +11,15 @@ import BattleBoard from './BattleBoard'
 interface Match {
   id: string
   status: string
+  match_title: string
   player: { id: string; email: string; avatar: string }
   playerByPlayer2Id?: { id: string; email: string; avatar: string } | null
+  total_units: number
 }
 
 const MatchPage: React.FC = () => {
   const { matchId } = useParams<{ matchId: string }>()
+  const navigate = useNavigate()
   const [connectedPlayers, setConnectedPlayers] = useState<Match | null>(null)
 
   // Suscribirse a cambios en la partida
@@ -26,56 +29,42 @@ const MatchPage: React.FC = () => {
 
   useEffect(() => {
     console.log('📡 Suscripción recibida:', data)
-
     if (data) {
       setConnectedPlayers(data.matches_by_pk)
     }
   }, [data])
 
   // Mutaciones para la gestión de partidas
-
-  // Función para que el jugador 2 abandone la partida
   const [leaveMatch, { loading: leavingMatch }] = useMutation(LEAVE_MATCH)
+  const [updateMatch, { loading: updatingMatch }] = useMutation(UPDATE_MATCH)
 
   const handleLeaveMatch = () => {
     leaveMatch({
-      variables: {
-        matchId: matchId,
-      },
+      variables: { matchId },
       onCompleted: (data) => {
         console.log('Has abandonado la partida con éxito:', data)
-        // Opcional: redirigir al usuario a la página principal
-        // history.push('/');
+        navigate('/')
       },
       onError: (error) => {
         console.error('Error al abandonar la partida:', error)
-        // Aquí podrías mostrar un mensaje de error al usuario
       },
     })
   }
 
-  // Función para iniciar la batalla
-  const [updateMatch, { loading: updatingMatch }] = useMutation(UPDATE_MATCH)
-
   const handleStartBattle = () => {
     if (!connectedPlayers || !connectedPlayers.playerByPlayer2Id) return
 
-    console.log('Iniciando batalla...') // Para depuración
-
-    // Elegir aleatoriamente quién comienza (50/50)
+    console.log('Iniciando batalla...')
     const randomPlayer =
       Math.random() < 0.5
         ? connectedPlayers.player.id
         : connectedPlayers.playerByPlayer2Id.id
 
-    // Actualizar el estado de la partida a "in_progress" y asignar el turno
-    // Usando exactamente el formato de la mutación que ya probaste
     updateMatch({
       variables: {
-        matchId: matchId,
+        matchId,
         set: {
-          // Note que aquí usamos "set" para coincidir con "_set" en GraphQL
-          status: 'in_progress', // Asegurando que usamos "in_progress" sin asteriscos
+          status: 'in_progress',
           turn: randomPlayer,
         },
       },
@@ -84,9 +73,13 @@ const MatchPage: React.FC = () => {
       },
       onError: (error) => {
         console.error('Error al iniciar la batalla:', error)
-        alert('Error al iniciar la batalla. Por favor intenta de nuevo.') // Feedback visual
+        alert('Error al iniciar la batalla. Por favor intenta de nuevo.')
       },
     })
+  }
+
+  const handleBackToLobby = () => {
+    navigate('/')
   }
 
   if (loading)
@@ -95,27 +88,49 @@ const MatchPage: React.FC = () => {
     return <p className="text-center text-red-500">Error: {error.message}</p>
 
   return (
-    <div className="text-white max-w-6xl mx-auto px-4 py-6 relative">
+    <div className="text-white h-screen overflow-hidden">
+      {/* Botón para volver al lobby - simple círculo */}
+      <button
+        onClick={handleBackToLobby}
+        title="Volver al Lobby"
+        className="absolute top-4 left-4 z-10 text-amber-400 hover:text-amber-300 bg-gray-900/60 p-1.5 rounded-full border border-amber-900/30 transition-colors"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </button>
+
       {/* Cabecera con título y estado */}
-      <div className="text-center">
-        <h2 className="text-3xl font-bold">Partida {matchId}</h2>
+      <div className="text-center pt-4 pb-2">
+        <h2 className="text-3xl font-bold">
+          {connectedPlayers?.match_title || `Partida ${matchId}`}
+        </h2>
         {connectedPlayers && (
-          <p className="mt-2 text-gray-300">
+          <p className="mt-1 text-gray-300">
             Estado: {connectedPlayers.status}
           </p>
         )}
       </div>
 
-      {/* Layout principal con dos columnas */}
-      <div className="mt-8 flex flex-col lg:flex-row gap-6">
-        {/* Panel lateral de jugadores - Ahora integrado en la vista principal */}
-        <div className="lg:w-1/4 bg-gray-900/80 rounded-lg border border-gray-800 p-4">
-          <h3 className="text-xl font-bold mb-4 text-amber-400 border-b border-gray-700 pb-2">
+      {/* Layout principal con dos columnas - panel de jugadores 30% más ancho */}
+      <div className="max-w-5xl mx-auto px-4 mt-4 flex flex-col lg:flex-row gap-4">
+        {/* Panel lateral de jugadores - AUMENTADO 30% DE ANCHO */}
+        <div className="lg:w-1/3 bg-gray-900/80 rounded-lg border border-gray-800 p-4">
+          <h3 className="text-xl font-bold mb-3 text-amber-400 border-b border-gray-700 pb-2 text-center">
             Jugadores en batalla
           </h3>
 
           {connectedPlayers ? (
-            <ul className="space-y-4">
+            <ul className="space-y-3">
               <li className="flex items-center space-x-3 p-2 rounded bg-gray-800/50">
                 <img
                   src={connectedPlayers.player.avatar}
@@ -139,8 +154,6 @@ const MatchPage: React.FC = () => {
                       className="w-10 h-10 rounded-full border-2 border-blue-600"
                     />
                     <div className="flex-1 pr-8">
-                      {' '}
-                      {/* Añadimos padding a la derecha para el botón */}
                       <span className="block truncate">
                         {connectedPlayers.playerByPlayer2Id.email}
                       </span>
@@ -148,7 +161,6 @@ const MatchPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Ícono de abandonar para el jugador 2 - Ahora posicionado absolutamente */}
                   <button
                     onClick={handleLeaveMatch}
                     disabled={leavingMatch}
@@ -197,7 +209,7 @@ const MatchPage: React.FC = () => {
               <div className="bg-gray-800 p-3 rounded border border-gray-700">
                 <p className="text-amber-400 font-semibold">Turno: 1</p>
                 <p className="text-amber-400 font-semibold mt-2">
-                  Recursos: 100
+                  Unidades: {connectedPlayers.total_units}
                 </p>
               </div>
 
@@ -212,16 +224,14 @@ const MatchPage: React.FC = () => {
           )}
         </div>
 
-        {/* Tablero de batalla - ahora ocupa menos espacio */}
-        <div className="lg:w-3/4">
+        {/* Tablero de batalla - ajustado para compensar panel más ancho */}
+        <div className="lg:w-2/3">
           <div className="bg-black/30 p-4 rounded-lg border border-gray-800 h-full flex flex-col">
             {connectedPlayers?.status === 'in_progress' ? (
-              // Tablero de juego activo
               <div className="flex justify-center flex-1">
                 <BattleBoard />
               </div>
             ) : (
-              // Tablero en espera
               <div className="text-center flex-1 flex flex-col items-center justify-center">
                 <div className="opacity-50 mb-4">
                   <BattleBoard />

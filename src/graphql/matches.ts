@@ -9,17 +9,31 @@ export const GET_MATCHES = gql`
       created_at
       player1_id
       player2_id
+      match_title
     }
   }
 `
 
 // 🔹 Mutación para crear una nueva partida
 export const CREATE_MATCH = gql`
-  mutation CreateMatch($player1_id: uuid!) {
-    insert_matches_one(object: { status: "waiting", player1_id: $player1_id }) {
+  mutation CreateMatch(
+    $player1_id: uuid!
+    $total_units: Int!
+    $match_title: String!
+  ) {
+    insert_matches_one(
+      object: {
+        status: "waiting"
+        player1_id: $player1_id
+        total_units: $total_units
+        match_title: $match_title
+      }
+    ) {
       id
       status
       created_at
+      total_units
+      match_title
     }
   }
 `
@@ -96,11 +110,12 @@ export const FETCH_PLAYER_UUID = gql`
 
 // 🔹 Suscripción para escuchar cambios en la partida en tiempo real
 export const GET_MATCH_SUBSCRIPTION = gql`
-  subscription GetMatchUpdates($matchId: uuid!) {
+  subscription GetMatchSubscription($matchId: uuid!) {
     matches_by_pk(id: $matchId) {
       id
       status
-      turn
+      match_title
+      total_units
       player {
         id
         email
@@ -114,6 +129,7 @@ export const GET_MATCH_SUBSCRIPTION = gql`
     }
   }
 `
+
 // Definir la mutación para eliminar una partida (para el dueño)
 export const DELETE_MATCH = gql`
   mutation DeleteMatch($matchId: uuid!) {

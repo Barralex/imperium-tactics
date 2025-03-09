@@ -27,6 +27,8 @@ interface Match {
   created_at: string
   player1_id: string
   player2_id: string | null
+  total_units: number
+  match_title: string
 }
 
 const MatchesLobby: React.FC = () => {
@@ -34,6 +36,9 @@ const MatchesLobby: React.FC = () => {
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [joiningMatchId, setJoiningMatchId] = useState<string | null>(null)
+
+  const currentPlayerId =
+    user?.['https://hasura.io/jwt/claims']?.['x-hasura-user-id']
 
   // Consulta para obtener salas en espera
   const { loading, error, data, refetch } = useQuery(GET_MATCHES, {
@@ -65,15 +70,9 @@ const MatchesLobby: React.FC = () => {
     },
   })
 
-  // Manejar la creación de una nueva sala
-  const handleCreateMatch = () => {
-    if (!isAuthenticated || !user) return
-
-    // Extraer el UUID real del usuario desde los claims de Hasura
-    const playerId =
-      user?.['https://hasura.io/jwt/claims']?.['x-hasura-user-id']
-
-    if (!playerId) {
+  const handleCreateMatch = (name: string, totalUnits: number) => {
+    // Verificar que el ID del usuario esté disponible
+    if (!currentPlayerId) {
       console.error(
         '❌ No se encontró el UUID del jugador en los claims de Hasura.'
       )
@@ -82,7 +81,9 @@ const MatchesLobby: React.FC = () => {
 
     createMatch({
       variables: {
-        player1_id: playerId,
+        player1_id: currentPlayerId,
+        total_units: totalUnits,
+        match_title: name, // Aquí usamos el nombre del modal como match_title
       },
     })
   }
@@ -318,7 +319,7 @@ const MatchesLobby: React.FC = () => {
                         <path d="M14.5 17.5L3 6M16.5 15.5L21 21M12 12L21 3M12 12L3 21" />
                       </svg>
                     </span>
-                    Zona de Guerra
+                    {match.match_title || 'Zona de Guerra'}
                     {(isPlayer1 || isPlayer2) && (
                       <span className="ml-2 text-sm bg-amber-500/20 text-amber-500 px-2 py-1 rounded-full">
                         {isPlayer1 ? 'Tu Campaña' : 'Participando'}
@@ -336,12 +337,21 @@ const MatchesLobby: React.FC = () => {
                     })}
                   </p>
 
-                  {/* Mostrar información sobre los jugadores */}
+                  {/* Mostrar información sobre los jugadores y unidades */}
                   <div className="mt-2 text-sm">
                     <span className="text-amber-400">Jugadores: </span>
                     <span className={isFullMatch ? 'text-green-400' : ''}>
                       {isFullMatch ? '2/2' : '1/2'}
                     </span>
+
+                    {match.total_units && (
+                      <span className="ml-3">
+                        <span className="text-amber-400">Unidades: </span>
+                        <span className="text-green-400">
+                          {match.total_units}
+                        </span>
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -386,8 +396,8 @@ const MatchesLobby: React.FC = () => {
         <CreateMatchModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          onSubmit={handleCreateMatch}
           isLoading={creatingMatch}
+          onSubmit={handleCreateMatch}
         />
       )}
     </div>
