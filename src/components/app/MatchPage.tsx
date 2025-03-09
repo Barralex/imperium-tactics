@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useSubscription } from '@apollo/client'
-import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet'
 import { GET_MATCH_SUBSCRIPTION } from '../../graphql/matches'
-import BattleBoard from './BattleBoard' // Importar el componente BattleBoard
+import BattleBoard from './BattleBoard'
 
 interface Match {
   id: string
@@ -22,12 +21,18 @@ const MatchPage: React.FC = () => {
   })
 
   useEffect(() => {
-    console.log('📡 Suscripción recibida:', data) // 🔥 Log para depuración
+    console.log('📡 Suscripción recibida:', data)
 
     if (data) {
       setConnectedPlayers(data.matches_by_pk)
     }
   }, [data])
+
+  // Función para que el jugador 2 abandone la partida
+  const handleLeaveMatch = () => {
+    // Aquí iría la mutación GraphQL para actualizar la partida
+    console.log('Jugador 2 abandona la partida')
+  }
 
   if (loading)
     return <p className="text-center text-white">Cargando partida...</p>
@@ -35,102 +40,143 @@ const MatchPage: React.FC = () => {
     return <p className="text-center text-red-500">Error: {error.message}</p>
 
   return (
-    <div className="text-white text-center max-w-6xl mx-auto px-4 py-6">
-      <h2 className="text-3xl font-bold">Partida {matchId}</h2>
-      {connectedPlayers && (
-        <p className="mt-2 text-gray-300">Estado: {connectedPlayers.status}</p>
-      )}
-
-      {/* Información del juego y tablero */}
-      <div className="mt-8 mb-8">
-        {connectedPlayers?.status === 'in_progress' ? (
-          // Si la partida está en progreso, mostrar tablero completo
-          <div>
-            <div className="flex justify-between items-center mb-4 px-4">
-              <div className="text-left">
-                <p className="text-amber-400 font-semibold">Turno: 1</p>
-              </div>
-              <div className="text-right">
-                <p className="text-amber-400 font-semibold">Recursos: 100</p>
-              </div>
-            </div>
-            <div className="flex justify-center overflow-auto">
-              <BattleBoard />
-            </div>
-            <div className="mt-4 flex justify-center space-x-4">
-              <button className="bg-gray-800 hover:bg-gray-700 text-gray-200 px-4 py-2 rounded border border-gray-700">
-                Desplegar unidad
-              </button>
-              <button className="bg-amber-700 hover:bg-amber-600 text-amber-100 px-4 py-2 rounded border border-amber-900">
-                Terminar turno
-              </button>
-            </div>
-          </div>
-        ) : (
-          // Si está en espera, mostrar mensaje y tablero más pequeño
-          <div className="bg-black/30 p-6 rounded-lg border border-gray-800">
-            <div className="text-center mb-6">
-              {!connectedPlayers?.playerByPlayer2Id ? (
-                <p className="text-amber-300 text-lg mb-4">
-                  Esperando a un oponente...
-                </p>
-              ) : (
-                <button className="bg-amber-600 hover:bg-amber-500 text-black px-6 py-3 rounded-md font-bold transition">
-                  Comenzar Batalla
-                </button>
-              )}
-            </div>
-
-            <div className="flex justify-center opacity-50">
-              <BattleBoard />
-            </div>
-
-            <p className="text-gray-400 mt-4 text-sm">
-              El campo de batalla se activará cuando comience la partida
-            </p>
-          </div>
+    <div className="text-white max-w-6xl mx-auto px-4 py-6 relative">
+      {/* Cabecera con título y estado */}
+      <div className="text-center">
+        <h2 className="text-3xl font-bold">Partida {matchId}</h2>
+        {connectedPlayers && (
+          <p className="mt-2 text-gray-300">
+            Estado: {connectedPlayers.status}
+          </p>
         )}
       </div>
 
-      {/* Botón para abrir la lista de jugadores */}
-      <Sheet>
-        <SheetTrigger className="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded font-bold mt-4">
-          Ver jugadores
-        </SheetTrigger>
-        <SheetContent className="bg-gray-900 text-white p-4">
-          <h3 className="text-xl font-bold mb-4">Jugadores en la partida</h3>
+      {/* Layout principal con dos columnas */}
+      <div className="mt-8 flex flex-col lg:flex-row gap-6">
+        {/* Panel lateral de jugadores - Ahora integrado en la vista principal */}
+        <div className="lg:w-1/4 bg-gray-900/80 rounded-lg border border-gray-800 p-4">
+          <h3 className="text-xl font-bold mb-4 text-amber-400 border-b border-gray-700 pb-2">
+            Jugadores en batalla
+          </h3>
 
           {connectedPlayers ? (
-            <ul className="space-y-3">
-              <li className="flex items-center space-x-3">
+            <ul className="space-y-4">
+              <li className="flex items-center space-x-3 p-2 rounded bg-gray-800/50">
                 <img
                   src={connectedPlayers.player.avatar}
                   alt={connectedPlayers.player.email}
-                  className="w-10 h-10 rounded-full border border-yellow-400"
+                  className="w-10 h-10 rounded-full border-2 border-green-600"
                 />
-                <span>{connectedPlayers.player.email}</span>
-                <span className="text-green-400">(Host)</span>
+                <div className="flex-1">
+                  <span className="block truncate">
+                    {connectedPlayers.player.email}
+                  </span>
+                  <span className="text-green-400 text-sm">(Host)</span>
+                </div>
               </li>
 
               {connectedPlayers.playerByPlayer2Id ? (
-                <li className="flex items-center space-x-3">
+                <li className="flex items-center space-x-3 p-2 rounded bg-gray-800/50">
                   <img
                     src={connectedPlayers.playerByPlayer2Id.avatar}
                     alt={connectedPlayers.playerByPlayer2Id.email}
-                    className="w-10 h-10 rounded-full border border-yellow-400"
+                    className="w-10 h-10 rounded-full border-2 border-blue-600"
                   />
-                  <span>{connectedPlayers.playerByPlayer2Id.email}</span>
-                  <span className="text-blue-400">(Jugador 2)</span>
+                  <div className="flex-1">
+                    <span className="block truncate">
+                      {connectedPlayers.playerByPlayer2Id.email}
+                    </span>
+                    <span className="text-blue-400 text-sm">(Jugador 2)</span>
+                  </div>
+
+                  {/* Ícono de abandonar para el jugador 2 */}
+                  <button
+                    onClick={handleLeaveMatch}
+                    className="text-red-600 hover:text-red-400 transition-colors focus:outline-none"
+                    title="Abandonar partida"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
                 </li>
               ) : (
-                <p className="text-gray-400">Esperando a un oponente...</p>
+                <p className="text-gray-400 text-center py-4 italic">
+                  Esperando a un oponente...
+                </p>
               )}
             </ul>
           ) : (
             <p className="text-gray-400">No hay jugadores conectados.</p>
           )}
-        </SheetContent>
-      </Sheet>
+
+          {/* Comandos de batalla */}
+          {connectedPlayers?.status === 'waiting' &&
+            connectedPlayers?.playerByPlayer2Id && (
+              <div className="mt-6 text-center">
+                <button className="bg-amber-600 hover:bg-amber-500 text-black w-full px-4 py-3 rounded-md font-bold transition">
+                  Comenzar Batalla
+                </button>
+              </div>
+            )}
+
+          {connectedPlayers?.status === 'in_progress' && (
+            <div className="mt-6 space-y-3">
+              <div className="bg-gray-800 p-3 rounded border border-gray-700">
+                <p className="text-amber-400 font-semibold">Turno: 1</p>
+                <p className="text-amber-400 font-semibold mt-2">
+                  Recursos: 100
+                </p>
+              </div>
+
+              <button className="bg-gray-800 hover:bg-gray-700 text-gray-200 w-full px-4 py-2 rounded border border-gray-700">
+                Desplegar unidad
+              </button>
+
+              <button className="bg-amber-700 hover:bg-amber-600 text-amber-100 w-full px-4 py-2 rounded border border-amber-900">
+                Terminar turno
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Tablero de batalla - ahora ocupa menos espacio */}
+        <div className="lg:w-3/4">
+          <div className="bg-black/30 p-4 rounded-lg border border-gray-800 h-full flex flex-col">
+            {connectedPlayers?.status === 'in_progress' ? (
+              // Tablero de juego activo
+              <div className="flex justify-center flex-1">
+                <BattleBoard />
+              </div>
+            ) : (
+              // Tablero en espera
+              <div className="text-center flex-1 flex flex-col items-center justify-center">
+                <div className="opacity-50 mb-4">
+                  <BattleBoard />
+                </div>
+                <p className="text-gray-400 mt-4 text-sm">
+                  El campo de batalla se activará cuando comience la partida
+                </p>
+
+                {!connectedPlayers?.playerByPlayer2Id && (
+                  <p className="text-amber-300 text-lg mt-4">
+                    Esperando a un oponente...
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
