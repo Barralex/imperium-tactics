@@ -7,7 +7,8 @@ import {
   LEAVE_MATCH,
 } from '../../graphql/matches'
 import BattleBoard from './BattleBoard'
-import LoadingScreen from './LoadingScreen' // Importamos el componente de carga
+import LoadingScreen from './LoadingScreen'
+import UnitSelectionModal from './UnitSelectionModal' // Importar el nuevo componente
 
 interface Match {
   id: string
@@ -22,6 +23,7 @@ const MatchPage: React.FC = () => {
   const { matchId } = useParams<{ matchId: string }>()
   const navigate = useNavigate()
   const [connectedPlayers, setConnectedPlayers] = useState<Match | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false) // Estado para controlar el modal
 
   // Suscribirse a cambios en la partida
   const { data, loading, error } = useSubscription(GET_MATCH_SUBSCRIPTION, {
@@ -83,13 +85,33 @@ const MatchPage: React.FC = () => {
     navigate('/')
   }
 
-  if (loading) return <LoadingScreen /> // Usamos LoadingScreen en lugar del texto simple
+  // Función para abrir el modal de selección de unidades
+  const handleDeployUnit = () => {
+    setIsModalOpen(true)
+  }
+
+  // Función para cerrar el modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+  }
+
+
+  if (loading) return <LoadingScreen />
 
   if (error)
     return <p className="text-center text-red-500">Error: {error.message}</p>
 
   return (
     <div className="text-white h-screen overflow-hidden">
+      {/* Modal de selección de unidades con límite máximo */}
+      <UnitSelectionModal 
+        isOpen={isModalOpen} 
+        onClose={handleCloseModal} 
+        maxUnidades={5} 
+        playerId={connectedPlayers?.player?.id} 
+        matchId={matchId} 
+      />
+
       {/* Botón para volver al lobby - simple círculo */}
       <button
         onClick={handleBackToLobby}
@@ -214,7 +236,10 @@ const MatchPage: React.FC = () => {
                 </p>
               </div>
 
-              <button className="bg-gray-800 hover:bg-gray-700 text-gray-200 w-full px-4 py-2 rounded border border-gray-700">
+              <button 
+                className="bg-gray-800 hover:bg-gray-700 text-gray-200 w-full px-4 py-2 rounded border border-gray-700"
+                onClick={handleDeployUnit} // Agregar el controlador de eventos aquí
+              >
                 Desplegar unidad
               </button>
 
@@ -241,9 +266,6 @@ const MatchPage: React.FC = () => {
                   El campo de batalla se activará cuando comience la partida
                 </p>
 
-                {!connectedPlayers?.playerByPlayer2Id && (
-                  <LoadingScreen /> // Reemplazamos el mensaje de texto por el LoadingScreen
-                )}
               </div>
             )}
           </div>
