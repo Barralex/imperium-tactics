@@ -10,6 +10,7 @@ export const GET_MATCHES = gql`
       player1_id
       player2_id
       match_title
+      total_units
     }
   }
 `

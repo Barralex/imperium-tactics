@@ -21,11 +21,11 @@ export const useMatches = () => {
   const currentPlayerId =
     user?.['https://hasura.io/jwt/claims']?.['x-hasura-user-id']
 
-  // Consulta para obtener salas en espera
+  // Consulta única para obtener salas disponibles
   const { loading, error, data, refetch } = useQuery(GET_MATCHES, {
-    pollInterval: 5000,
+    fetchPolicy: 'network-only', // Asegura datos frescos
     onError: (err) => {
-      console.error('Error con la primera consulta:', err.message)
+      console.error('Error al obtener las partidas:', err.message)
     },
   })
 
@@ -146,7 +146,7 @@ export const useMatches = () => {
     deletingMatch,
     isModalOpen,
     setIsModalOpen,
-    refetch,
+    refetch, // Útil para actualizar manualmente cuando sea necesario
     handleCreateMatch,
     handleEnterMatch,
     handleDeleteMatch,
