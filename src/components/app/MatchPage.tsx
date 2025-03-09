@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { useSubscription } from '@apollo/client'
-import { GET_MATCH_SUBSCRIPTION } from '../../graphql/matches'
+import { useSubscription, useMutation } from '@apollo/client'
+import {
+  GET_MATCH_SUBSCRIPTION,
+  UPDATE_MATCH,
+  LEAVE_MATCH,
+} from '../../graphql/matches'
 import BattleBoard from './BattleBoard'
 
 interface Match {
@@ -28,10 +32,61 @@ const MatchPage: React.FC = () => {
     }
   }, [data])
 
+  // Mutaciones para la gestión de partidas
+
   // Función para que el jugador 2 abandone la partida
+  const [leaveMatch, { loading: leavingMatch }] = useMutation(LEAVE_MATCH)
+
   const handleLeaveMatch = () => {
-    // Aquí iría la mutación GraphQL para actualizar la partida
-    console.log('Jugador 2 abandona la partida')
+    leaveMatch({
+      variables: {
+        matchId: matchId,
+      },
+      onCompleted: (data) => {
+        console.log('Has abandonado la partida con éxito:', data)
+        // Opcional: redirigir al usuario a la página principal
+        // history.push('/');
+      },
+      onError: (error) => {
+        console.error('Error al abandonar la partida:', error)
+        // Aquí podrías mostrar un mensaje de error al usuario
+      },
+    })
+  }
+
+  // Función para iniciar la batalla
+  const [updateMatch, { loading: updatingMatch }] = useMutation(UPDATE_MATCH)
+
+  const handleStartBattle = () => {
+    if (!connectedPlayers || !connectedPlayers.playerByPlayer2Id) return
+
+    console.log('Iniciando batalla...') // Para depuración
+
+    // Elegir aleatoriamente quién comienza (50/50)
+    const randomPlayer =
+      Math.random() < 0.5
+        ? connectedPlayers.player.id
+        : connectedPlayers.playerByPlayer2Id.id
+
+    // Actualizar el estado de la partida a "in_progress" y asignar el turno
+    // Usando exactamente el formato de la mutación que ya probaste
+    updateMatch({
+      variables: {
+        matchId: matchId,
+        set: {
+          // Note que aquí usamos "set" para coincidir con "_set" en GraphQL
+          status: 'in_progress', // Asegurando que usamos "in_progress" sin asteriscos
+          turn: randomPlayer,
+        },
+      },
+      onCompleted: (data) => {
+        console.log('Batalla iniciada con éxito:', data)
+      },
+      onError: (error) => {
+        console.error('Error al iniciar la batalla:', error)
+        alert('Error al iniciar la batalla. Por favor intenta de nuevo.') // Feedback visual
+      },
+    })
   }
 
   if (loading)
@@ -76,23 +131,28 @@ const MatchPage: React.FC = () => {
               </li>
 
               {connectedPlayers.playerByPlayer2Id ? (
-                <li className="flex items-center space-x-3 p-2 rounded bg-gray-800/50">
-                  <img
-                    src={connectedPlayers.playerByPlayer2Id.avatar}
-                    alt={connectedPlayers.playerByPlayer2Id.email}
-                    className="w-10 h-10 rounded-full border-2 border-blue-600"
-                  />
-                  <div className="flex-1">
-                    <span className="block truncate">
-                      {connectedPlayers.playerByPlayer2Id.email}
-                    </span>
-                    <span className="text-blue-400 text-sm">(Jugador 2)</span>
+                <li className="p-2 rounded bg-gray-800/50 relative">
+                  <div className="flex items-center space-x-3">
+                    <img
+                      src={connectedPlayers.playerByPlayer2Id.avatar}
+                      alt={connectedPlayers.playerByPlayer2Id.email}
+                      className="w-10 h-10 rounded-full border-2 border-blue-600"
+                    />
+                    <div className="flex-1 pr-8">
+                      {' '}
+                      {/* Añadimos padding a la derecha para el botón */}
+                      <span className="block truncate">
+                        {connectedPlayers.playerByPlayer2Id.email}
+                      </span>
+                      <span className="text-blue-400 text-sm">(Jugador 2)</span>
+                    </div>
                   </div>
 
-                  {/* Ícono de abandonar para el jugador 2 */}
+                  {/* Ícono de abandonar para el jugador 2 - Ahora posicionado absolutamente */}
                   <button
                     onClick={handleLeaveMatch}
-                    className="text-red-600 hover:text-red-400 transition-colors focus:outline-none"
+                    disabled={leavingMatch}
+                    className={`text-red-600 hover:text-red-400 transition-colors focus:outline-none absolute top-2 right-2 ${leavingMatch ? 'opacity-50 cursor-not-allowed' : ''}`}
                     title="Abandonar partida"
                   >
                     <svg
@@ -123,7 +183,10 @@ const MatchPage: React.FC = () => {
           {connectedPlayers?.status === 'waiting' &&
             connectedPlayers?.playerByPlayer2Id && (
               <div className="mt-6 text-center">
-                <button className="bg-amber-600 hover:bg-amber-500 text-black w-full px-4 py-3 rounded-md font-bold transition">
+                <button
+                  onClick={handleStartBattle}
+                  className="bg-amber-600 hover:bg-amber-500 text-black w-full px-4 py-3 rounded-md font-bold transition"
+                >
                   Comenzar Batalla
                 </button>
               </div>

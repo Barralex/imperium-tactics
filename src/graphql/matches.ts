@@ -1,12 +1,9 @@
 import { gql } from '@apollo/client'
 
 // 🔹 Query para obtener partidas con estado "waiting"
-export const GET_WAITING_MATCHES = gql`
+export const GET_MATCHES = gql`
   query GetWaitingMatches {
-    matches(
-      where: { status: { _eq: "waiting" } }
-      order_by: { created_at: desc }
-    ) {
+    matches(order_by: { created_at: desc }) {
       id
       status
       created_at
@@ -42,6 +39,38 @@ export const JOIN_MATCH = gql`
   }
 `
 
+// 🔹 Mutación para actualizar el estado de una partida e iniciar la batalla
+export const UPDATE_MATCH = gql`
+  mutation UpdateMatch($matchId: uuid!, $set: matches_set_input!) {
+    update_matches_by_pk(pk_columns: { id: $matchId }, _set: $set) {
+      id
+      status
+      turn
+    }
+  }
+`
+
+// 🔹 Mutación para que el jugador 2 abandone una partida
+export const LEAVE_MATCH = gql`
+  mutation LeaveMatch($matchId: uuid!) {
+    update_matches_by_pk(
+      pk_columns: { id: $matchId }
+      _set: { player2_id: null, status: "waiting" }
+    ) {
+      id
+      status
+      player {
+        id
+        email
+      }
+      playerByPlayer2Id {
+        id
+        email
+      }
+    }
+  }
+`
+
 // 🔹 Query para obtener detalles de una partida específica
 export const GET_MATCH_DETAILS = gql`
   query GetMatchDetails($matchId: uuid!) {
@@ -71,6 +100,7 @@ export const GET_MATCH_SUBSCRIPTION = gql`
     matches_by_pk(id: $matchId) {
       id
       status
+      turn
       player {
         id
         email
@@ -81,6 +111,14 @@ export const GET_MATCH_SUBSCRIPTION = gql`
         email
         avatar
       }
+    }
+  }
+`
+// Definir la mutación para eliminar una partida (para el dueño)
+export const DELETE_MATCH = gql`
+  mutation DeleteMatch($matchId: uuid!) {
+    delete_matches_by_pk(id: $matchId) {
+      id
     }
   }
 `

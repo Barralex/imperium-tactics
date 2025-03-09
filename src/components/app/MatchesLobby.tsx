@@ -4,7 +4,7 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from 'react-router-dom'
 import { gql } from '@apollo/client'
 import CreateMatchModal from './CreateMatchModal'
-import { GET_WAITING_MATCHES, CREATE_MATCH } from '../../graphql/matches'
+import { GET_MATCHES, CREATE_MATCH } from '../../graphql/matches'
 
 // Definir la mutación para unirse a una partida
 const JOIN_MATCH = gql`
@@ -36,7 +36,7 @@ const MatchesLobby: React.FC = () => {
   const [joiningMatchId, setJoiningMatchId] = useState<string | null>(null)
 
   // Consulta para obtener salas en espera
-  const { loading, error, data, refetch } = useQuery(GET_WAITING_MATCHES, {
+  const { loading, error, data, refetch } = useQuery(GET_MATCHES, {
     pollInterval: 5000,
     onError: (err) => {
       console.error('Error con la primera consulta:', err.message)
