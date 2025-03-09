@@ -9,6 +9,7 @@ import {
 import BattleBoard from './BattleBoard'
 import LoadingScreen from './LoadingScreen'
 import UnitSelectionModal from './UnitSelectionModal' // Importar el nuevo componente
+import { useAuth0 } from '@auth0/auth0-react'
 
 interface Match {
   id: string
@@ -24,6 +25,7 @@ const MatchPage: React.FC = () => {
   const navigate = useNavigate()
   const [connectedPlayers, setConnectedPlayers] = useState<Match | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false) // Estado para controlar el modal
+  const { user } = useAuth0()
 
   // Suscribirse a cambios en la partida
   const { data, loading, error } = useSubscription(GET_MATCH_SUBSCRIPTION, {
@@ -95,6 +97,8 @@ const MatchPage: React.FC = () => {
     setIsModalOpen(false)
   }
 
+  const currentPlayerId =
+    user?.['https://hasura.io/jwt/claims']?.['x-hasura-user-id']
 
   if (loading) return <LoadingScreen />
 
@@ -104,12 +108,12 @@ const MatchPage: React.FC = () => {
   return (
     <div className="text-white h-screen overflow-hidden">
       {/* Modal de selección de unidades con límite máximo */}
-      <UnitSelectionModal 
-        isOpen={isModalOpen} 
-        onClose={handleCloseModal} 
-        maxUnidades={5} 
-        playerId={connectedPlayers?.player?.id} 
-        matchId={matchId} 
+      <UnitSelectionModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        maxUnidades={5}
+        playerId={currentPlayerId}
+        matchId={matchId}
       />
 
       {/* Botón para volver al lobby - simple círculo */}
@@ -236,7 +240,7 @@ const MatchPage: React.FC = () => {
                 </p>
               </div>
 
-              <button 
+              <button
                 className="bg-gray-800 hover:bg-gray-700 text-gray-200 w-full px-4 py-2 rounded border border-gray-700"
                 onClick={handleDeployUnit} // Agregar el controlador de eventos aquí
               >
@@ -265,7 +269,6 @@ const MatchPage: React.FC = () => {
                 <p className="text-gray-400 mt-4 text-sm">
                   El campo de batalla se activará cuando comience la partida
                 </p>
-
               </div>
             )}
           </div>
