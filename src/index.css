@@ -1,0 +1,500 @@
+@theme {
+  --font-display: 'Satoshi', 'sans-serif';
+  --breakpoint-3xl: 1920px;
+
+  /* ⚔️ Warhammer 40K Colors ⚔️ */
+  --color-imperial-gold: oklch(0.84 0.18 90); /* Dorado del Imperio */
+  --color-crimson-red: oklch(0.6 0.22 25); /* Rojo de la Inquisición */
+  --color-steel-gray: oklch(0.3 0.01 270); /* Acero del Adeptus Mechanicus */
+  --color-dark-charcoal: oklch(0.15 0.005 270); /* Oscuridad de la Guerra */
+  --color-void-black: oklch(0.05 0.001 270); /* Negro absoluto del Vacío */
+  --color-plasma-blue: oklch(0.7 0.2 200); /* Azul de energía de plasma */
+  --color-purging-white: oklch(0.98 0 0); /* Blanco puro del Adeptus Custodes */
+
+  --ease-fluid: cubic-bezier(0.3, 0, 0, 1);
+  --ease-snappy: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@import 'tailwindcss';
+@plugin 'tailwindcss-animate';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: var(--color-dark-charcoal);
+  --foreground: var(--color-purging-white);
+  --card: var(--color-steel-gray);
+  --card-foreground: var(--color-purging-white);
+  --popover: var(--color-dark-charcoal);
+  --popover-foreground: var(--color-purging-white);
+  --primary: var(--color-imperial-gold);
+  --primary-foreground: var(--color-void-black);
+  --secondary: var(--color-crimson-red);
+  --secondary-foreground: var(--color-purging-white);
+  --muted: var(--color-steel-gray);
+  --muted-foreground: var(--color-imperial-gold);
+  --accent: var(--color-plasma-blue);
+  --accent-foreground: var(--color-void-black);
+  --destructive: var(--color-crimson-red);
+  --destructive-foreground: var(--color-void-black);
+  --border: var(--color-steel-gray);
+  --input: var(--color-steel-gray);
+  --ring: var(--color-plasma-blue);
+}
+
+.dark {
+  --background: var(--color-void-black);
+  --foreground: var(--color-purging-white);
+  --card: var(--color-dark-charcoal);
+  --card-foreground: var(--color-purging-white);
+  --popover: var(--color-dark-charcoal);
+  --popover-foreground: var(--color-purging-white);
+  --primary: var(--color-imperial-gold);
+  --primary-foreground: var(--color-void-black);
+  --secondary: var(--color-crimson-red);
+  --secondary-foreground: var(--color-purging-white);
+  --muted: var(--color-steel-gray);
+  --muted-foreground: var(--color-imperial-gold);
+  --accent: var(--color-plasma-blue);
+  --accent-foreground: var(--color-void-black);
+  --destructive: var(--color-crimson-red);
+  --destructive-foreground: var(--color-void-black);
+  --border: var(--color-steel-gray);
+  --input: var(--color-steel-gray);
+  --ring: var(--color-plasma-blue);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Añadir a index.css */
+
+/* Fondo principal con efecto de "grimdark" */
+body {
+  background-color: var(--color-dark-charcoal);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23544f4f' fill-opacity='0.1'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0H5v5H0v1h5v94h1V6h94V5H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(
+      circle at center,
+      var(--color-dark-charcoal) 0%,
+      var(--color-void-black) 100%
+    );
+  background-blend-mode: overlay;
+  position: relative;
+}
+
+/* Efecto de ruido sutil para añadir textura */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Encabezado con estilo imperial */
+.imperial-header {
+  background-color: var(--color-void-black);
+  border-bottom: 1px solid var(--color-imperial-gold);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Línea de escaneo para el encabezado */
+.imperial-header::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-imperial-gold),
+    transparent
+  );
+  animation: scan 8s var(--ease-fluid) infinite;
+}
+
+@keyframes scan {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Título principal con efecto de resplandor */
+.main-title {
+  color: var(--color-imperial-gold);
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-align: center;
+  position: relative;
+  text-transform: uppercase;
+  text-shadow: 0 0 5px var(--color-imperial-gold);
+}
+
+/* Cita del 41º Milenio */
+.imperial-quote {
+  font-style: italic;
+  color: var(--color-imperial-gold);
+  opacity: 0.8;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Tarjetas de zona de guerra */
+.war-zone-card {
+  background-color: rgba(48, 48, 48, 0.7);
+  border: 1px solid var(--color-steel-gray);
+  position: relative;
+  transition: all 0.3s var(--ease-snappy);
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+}
+
+.war-zone-card:hover {
+  border-color: var(--color-imperial-gold);
+  transform: translateY(-2px);
+  box-shadow:
+    0 5px 15px rgba(0, 0, 0, 0.3),
+    0 0 10px rgba(255, 215, 0, 0.1);
+}
+
+/* Esquinas ornamentales de la tarjeta */
+.war-zone-card::before,
+.war-zone-card::after,
+.war-zone-card > div::before,
+.war-zone-card > div::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: var(--color-imperial-gold);
+  opacity: 0.7;
+  transition: all 0.3s var(--ease-snappy);
+}
+
+.war-zone-card::before {
+  top: 0;
+  left: 0;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+
+.war-zone-card::after {
+  top: 0;
+  right: 0;
+  border-top: 1px solid;
+  border-right: 1px solid;
+}
+
+.war-zone-card > div::before {
+  bottom: 0;
+  left: 0;
+  border-bottom: 1px solid;
+  border-left: 1px solid;
+}
+
+.war-zone-card > div::after {
+  bottom: 0;
+  right: 0;
+  border-bottom: 1px solid;
+  border-right: 1px solid;
+}
+
+.war-zone-card:hover::before,
+.war-zone-card:hover::after,
+.war-zone-card:hover > div::before,
+.war-zone-card:hover > div::after {
+  width: 15px;
+  height: 15px;
+  opacity: 1;
+}
+
+/* Iconos con estilo */
+.icon-sword {
+  color: var(--color-crimson-red);
+  filter: drop-shadow(0 0 2px rgba(255, 0, 0, 0.3));
+}
+
+.icon-shield {
+  color: var(--color-imperial-gold);
+  filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.3));
+}
+
+/* Botones con efecto hover */
+.imperial-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s var(--ease-snappy);
+  z-index: 1;
+  /* Colores añadidos */
+  background-color: var(--color-dark-charcoal);
+  color: var(--color-imperial-gold);
+  border: 1px solid var(--color-imperial-gold);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1.5rem;
+  text-shadow: 0 0 3px rgba(255, 215, 0, 0.3);
+}
+
+.imperial-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s var(--ease-fluid);
+  z-index: -1;
+}
+
+.imperial-button:hover {
+  /* Efectos al hacer hover */
+  background-color: var(--color-steel-gray);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.imperial-button:hover::before {
+  transform: translateX(100%);
+}
+
+/* Variante principal */
+.imperial-button-primary {
+  background-color: var(--color-imperial-gold);
+  color: var(--color-void-black);
+  border: 1px solid var(--color-imperial-gold);
+  text-shadow: none;
+}
+
+.imperial-button-primary:hover {
+  background-color: var(--color-void-black);
+  color: var(--color-imperial-gold);
+}
+
+/* Variante secundaria */
+.imperial-button-secondary {
+  background-color: var(--color-crimson-red);
+  color: var(--color-purging-white);
+  border: 1px solid var(--color-crimson-red);
+}
+
+.imperial-button-secondary:hover {
+  background-color: var(--color-void-black);
+  color: var(--color-crimson-red);
+}
+
+/* Sección de Campos de Batalla */
+.battlefields-section {
+  position: relative;
+}
+
+.battlefields-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.4;
+}
+
+.battlefields-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: var(--color-imperial-gold);
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.battlefields-title::before,
+.battlefields-title::after {
+  content: '';
+  flex-grow: 1;
+  height: 1px;
+  background-color: var(--color-imperial-gold);
+  opacity: 0.4;
+}
+
+.battlefields-title::before {
+  margin-right: 1rem;
+}
+
+.battlefields-title::after {
+  margin-left: 1rem;
+}
+
+/* Estado vacío estilizado */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background-color: rgba(48, 48, 48, 0.3);
+  border: 1px dashed var(--color-steel-gray);
+  border-radius: 0.5rem;
+}
+
+.empty-state svg {
+  opacity: 0.5;
+  margin-bottom: 1.5rem;
+}
+
+.empty-state-text {
+  font-style: italic;
+  color: var(--color-purging-white);
+  opacity: 0.7;
+  max-width: 24rem;
+  margin: 0 auto 1.5rem;
+}
+
+/* Fondo principal - atmósfera grimdark */
+.imperial-background {
+  background-color: var(--color-void-black);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='%23544f4f' fill-opacity='0.1'%3E%3Cpath d='M20 0L0 20h20V0zm0 40V20h20L20 40z'/%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(
+      circle at 50% 50%,
+      var(--color-dark-charcoal) 0%,
+      var(--color-void-black) 80%
+    );
+  background-blend-mode: overlay;
+  position: relative;
+}
+
+/* Efecto de ruido para dar textura */
+.noise-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.05;
+}
+
+/* Línea de escaneo con efecto */
+.scan-line {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-plasma-blue),
+    transparent
+  );
+  box-shadow: 0 0 10px var(--color-plasma-blue);
+  top: 50%;
+  opacity: 0.2;
+  animation: scan 8s var(--ease-fluid) infinite;
+}
+
+@keyframes scan {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  3% {
+    opacity: 0.3;
+  }
+  50% {
+    top: 97%;
+  }
+  97% {
+    opacity: 0.3;
+  }
+  100% {
+    top: 0%;
+    opacity: 0;
+  }
+}
+
+/* Decoraciones de esquina imperiales */
+.imperial-corner {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.2;
+  z-index: 5;
+}
+
+.imperial-corner.top-left {
+  top: 0;
+  left: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='%23ffd700' stroke-width='1'%3E%3Cpath d='M0 30L30 0M0 60L60 0M0 90L90 0M10 100L100 10M40 100L100 40M70 100L100 70' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.imperial-corner.top-right {
+  top: 0;
+  right: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='%23ffd700' stroke-width='1'%3E%3Cpath d='M70 0L100 30M40 0L100 60M10 0L100 90M0 10L90 100M0 40L60 100M0 70L30 100' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.imperial-corner.bottom-left {
+  bottom: 0;
+  left: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='%23ffd700' stroke-width='1'%3E%3Cpath d='M0 70L30 100M0 40L60 100M0 10L90 100M10 0L100 90M40 0L100 60M70 0L100 30' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.imperial-corner.bottom-right {
+  bottom: 0;
+  right: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='%23ffd700' stroke-width='1'%3E%3Cpath d='M100 70L70 100M100 40L40 100M100 10L10 100M90 0L0 90M60 0L0 60M30 0L0 30' stroke-linecap='round'/%3E%3C/svg%3E");
+}
