@@ -141,6 +141,7 @@ interface BattleCommandsProps {
   totalUnits: number | undefined
   onStartBattle: () => void
   onDeployUnit: () => void
+  isHost: boolean
 }
 
 export const BattleCommands: React.FC<BattleCommandsProps> = ({
@@ -149,9 +150,10 @@ export const BattleCommands: React.FC<BattleCommandsProps> = ({
   totalUnits,
   onStartBattle,
   onDeployUnit,
+  isHost,
 }) => (
   <div>
-    {status === 'waiting' && hasOpponent && (
+    {status === 'waiting' && hasOpponent && isHost && (
       <div className="mt-6 text-center">
         <button
           onClick={onStartBattle}
@@ -159,6 +161,21 @@ export const BattleCommands: React.FC<BattleCommandsProps> = ({
         >
           Comenzar Batalla
         </button>
+      </div>
+    )}
+
+    {status === 'waiting' && hasOpponent && !isHost && (
+      <div className="mt-6 text-center">
+        <div className="bg-gray-800/70 border border-amber-900/50 rounded-lg p-4">
+          <div className="flex justify-center mb-2 text-2xl">
+            <span className="animate-bounce mr-2">🐉</span>
+            <span className="animate-bounce delay-100">🔥</span>
+          </div>
+          <p className="text-amber-400 font-bold mb-1">Preparando batalla...</p>
+          <p className="text-gray-300 text-sm">
+            Esperando a que el anfitrión inicie el combate
+          </p>
+        </div>
       </div>
     )}
 

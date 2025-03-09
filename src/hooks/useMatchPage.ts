@@ -30,9 +30,31 @@ export const useMatchPage = () => {
   useEffect(() => {
     console.log('📡 Suscripción recibida:', data)
     if (data) {
+      // Verificar si la partida existe
+      if (!data.matches_by_pk) {
+        console.log('La partida ya no existe')
+        alert('La partida ya no existe. Serás redirigido al lobby.')
+        navigate('/')
+        return
+      }
+
       setConnectedPlayers(data.matches_by_pk)
+
+      // Verificar si el jugador actual sigue en la partida
+      const player1Id = data.matches_by_pk.player?.id
+      const player2Id = data.matches_by_pk.playerByPlayer2Id?.id
+
+      if (
+        currentPlayerId &&
+        player1Id !== currentPlayerId &&
+        player2Id !== currentPlayerId
+      ) {
+        console.log('Has sido expulsado de la partida')
+        alert('Ya no formas parte de esta partida')
+        navigate('/')
+      }
     }
-  }, [data])
+  }, [data, currentPlayerId, navigate])
 
   // Mutaciones para la gestión de partidas
   const [leaveMatch, { loading: leavingMatch }] = useMutation(LEAVE_MATCH)

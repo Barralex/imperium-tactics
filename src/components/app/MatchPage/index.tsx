@@ -71,6 +71,7 @@ const MatchPage: React.FC = () => {
             totalUnits={connectedPlayers?.total_units}
             onStartBattle={handleStartBattle}
             onDeployUnit={handleDeployUnit}
+            isHost={connectedPlayers?.player.id === currentPlayerId}
           />
         </div>
 
