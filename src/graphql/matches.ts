@@ -155,6 +155,22 @@ export const GET_PIECES = gql`
   }
 `
 
+// Suscripción para obtener las piezas del tablero en tiempo real
+export const PIECES_SUBSCRIPTION = gql`
+  subscription PiecesSubscription($matchId: uuid!) {
+    pieces(where: { match_id: { _eq: $matchId } }) {
+      id
+      hp
+      player_id
+      pos_x
+      pos_y
+      range
+      type
+      movement
+    }
+  }
+`
+
 // Definir la mutación GraphQL
 export const INSERT_PIECES = gql`
   mutation InsertPieces($objects: [pieces_insert_input!]!) {

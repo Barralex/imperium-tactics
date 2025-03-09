@@ -1,27 +1,32 @@
-import { GET_PIECES } from '@/graphql/matches'
-import { useQuery } from '@apollo/client'
+import { PIECES_SUBSCRIPTION } from '@/graphql/matches'
+import { useSubscription } from '@apollo/client'
 import { useParams } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 
 const BattleBoard = () => {
   const { matchId } = useParams()
   const size = 20
+  const [pieceMap, setPieceMap] = useState({})
 
-  // Consultar las piezas de esta partida
-  const { data, loading, error } = useQuery(GET_PIECES, {
+  // Suscripción a las piezas de esta partida
+  const { data, loading, error } = useSubscription(PIECES_SUBSCRIPTION, {
     variables: { matchId },
-    pollInterval: 2000, // Actualizar cada 2 segundos
+    onError: (error) => {
+      console.error('Error en la suscripción de piezas:', error)
+    },
   })
 
-  // Mapa para almacenar las piezas por posición
-  const pieceMap = {}
-
-  // Si tenemos datos, crear un mapa de piezas por posición
-  if (data && data.pieces) {
-    data.pieces.forEach((piece) => {
-      const key = `${piece.pos_x}-${piece.pos_y}`
-      pieceMap[key] = piece
-    })
-  }
+  // Actualizar el mapa de piezas cuando cambian los datos
+  useEffect(() => {
+    if (data && data.pieces) {
+      const newPieceMap = {}
+      data.pieces.forEach((piece) => {
+        const key = `${piece.pos_x}-${piece.pos_y}`
+        newPieceMap[key] = piece
+      })
+      setPieceMap(newPieceMap)
+    }
+  }, [data])
 
   // Función para renderizar una pieza
   const renderPiece = (piece) => {
@@ -46,7 +51,7 @@ const BattleBoard = () => {
       <div
         className={`absolute inset-0.5 ${bgColor} rounded-full flex items-center justify-center text-white font-bold
                   border-2 ${borderColor} shadow-inner overflow-hidden`}
-        title={`${piece.type.toUpperCase()} | HP: ${piece.hp} | Rango: ${piece.range}`}
+        title={`${piece.type.toUpperCase()} | HP: ${piece.hp} | Rango: ${piece.range} | Mov: ${piece.movement}`}
       >
         <span className="text-xs">{icon}</span>
       </div>
@@ -96,7 +101,7 @@ const BattleBoard = () => {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            <span className="font-bold">Cargando despliegue de tropas...</span>
+            <span className="font-bold">Conectando al campo de batalla...</span>
           </div>
         </div>
       )}
@@ -118,6 +123,11 @@ const BattleBoard = () => {
             </svg>
             <span className="font-bold">
               Error en la transmisión de datos del campo de batalla
+            </span>
+            <span className="text-sm mt-1">
+              {error.message.includes('not exist')
+                ? 'La partida ya no existe o has sido expulsado'
+                : 'Reconectando...'}
             </span>
           </div>
         </div>
