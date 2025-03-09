@@ -138,3 +138,28 @@ export const DELETE_MATCH = gql`
     }
   }
 `
+
+// Consulta para obtener las piezas del tablero
+export const GET_PIECES = gql`
+  query GetPieces($matchId: uuid!) {
+    pieces(where: { match_id: { _eq: $matchId } }) {
+      id
+      hp
+      player_id
+      pos_x
+      pos_y
+      range
+      type
+      movement
+    }
+  }
+`
+
+// Definir la mutación GraphQL
+export const INSERT_PIECES = gql`
+  mutation InsertPieces($objects: [pieces_insert_input!]!) {
+    insert_pieces(objects: $objects) {
+      affected_rows
+    }
+  }
+`

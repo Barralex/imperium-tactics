@@ -1,21 +1,6 @@
-import { useQuery, gql } from '@apollo/client'
+import { GET_PIECES } from '@/graphql/matches'
+import { useQuery } from '@apollo/client'
 import { useParams } from 'react-router-dom'
-
-// Consulta para obtener las piezas del tablero
-const GET_PIECES = gql`
-  query GetPieces($matchId: uuid!) {
-    pieces(where: { match_id: { _eq: $matchId } }) {
-      id
-      hp
-      player_id
-      pos_x
-      pos_y
-      range
-      type
-      movement
-    }
-  }
-`
 
 const BattleBoard = () => {
   const { matchId } = useParams()

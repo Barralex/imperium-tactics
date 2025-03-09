@@ -1,14 +1,6 @@
 import { useState, useEffect } from 'react'
-import { useMutation, gql } from '@apollo/client'
-
-// Definir la mutación GraphQL
-const INSERT_PIECES = gql`
-  mutation InsertPieces($objects: [pieces_insert_input!]!) {
-    insert_pieces(objects: $objects) {
-      affected_rows
-    }
-  }
-`
+import { useMutation } from '@apollo/client'
+import { INSERT_PIECES } from '@/graphql/matches'
 
 const UnitSelectionModal = ({
   isOpen,
