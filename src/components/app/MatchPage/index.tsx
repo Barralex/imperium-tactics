@@ -39,7 +39,7 @@ const MatchPage: React.FC = () => {
       <UnitSelectionModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        maxUnidades={5}
+        maxUnidades={(connectedPlayers?.total_units ?? 0) / 2}
         playerId={currentPlayerId}
         matchId={matchId}
         connectedPlayers={connectedPlayers}

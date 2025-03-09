@@ -76,7 +76,7 @@ export const useMatches = () => {
     createMatch({
       variables: {
         player1_id: currentPlayerId,
-        total_units: totalUnits,
+        total_units: totalUnits * 2,
         match_title: name,
       },
     })

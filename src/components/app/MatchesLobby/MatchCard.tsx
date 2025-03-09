@@ -89,7 +89,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
           <div className="flex space-x-3">
             <p className="flex items-center">
               <span className="w-3 h-3 rounded-full mr-1.5 inline-block bg-amber-700"></span>
-              <span className="text-gray-400">Escuadrones: </span>
+              <span className="text-gray-400">Unidades: </span>
               <span className="text-amber-400 ml-1">
                 {match.total_units || 0}
               </span>
