@@ -114,6 +114,7 @@ const MatchPage: React.FC = () => {
         maxUnidades={5}
         playerId={currentPlayerId}
         matchId={matchId}
+        connectedPlayers={connectedPlayers}
       />
 
       {/* Botón para volver al lobby - simple círculo */}
