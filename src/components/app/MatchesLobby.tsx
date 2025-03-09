@@ -140,8 +140,9 @@ const MatchesLobby: React.FC = () => {
   if (loading && !data) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="battlefields-section mb-8">
-          <div className="h-8 bg-muted/30 w-64 mx-auto rounded animate-pulse"></div>
+        <div className="flex justify-between items-center mb-8">
+          <div className="h-8 bg-muted/30 w-64 rounded animate-pulse"></div>
+          <div className="h-10 bg-muted/30 w-48 rounded animate-pulse"></div>
         </div>
 
         {[...Array(3)].map((_, index) => (
@@ -199,96 +200,184 @@ const MatchesLobby: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Título de sección */}
-      <div className="battlefields-section mb-8">
-        <h2 className="battlefields-title">Campos de Batalla</h2>
+      {/* Encabezado con título y botón de crear partida */}
+      <div className="flex flex-col md:flex-row justify-between items-center mb-8">
+        <div className="battlefields-section mb-4 md:mb-0">
+          <h2 className="battlefields-title">Campos de Batalla</h2>
+        </div>
+
+        {isAuthenticated && (
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded imperial-button flex items-center gap-2"
+            disabled={creatingMatch}
+          >
+            {creatingMatch ? (
+              <>
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Creando...
+              </>
+            ) : (
+              <>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+                Iniciar Nueva Campaña
+              </>
+            )}
+          </button>
+        )}
       </div>
 
       {matches.length === 0 ? (
-        <div className="empty-state">
-          <p className="empty-state-text">
+        <div className="empty-state p-10 border-2 border-dashed border-muted rounded-lg text-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="mx-auto text-muted-foreground mb-4 h-16 w-16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="8" y1="12" x2="16" y2="12" />
+          </svg>
+          <p className="empty-state-text text-xl mb-6">
             No hay zonas de guerra activas. La galaxia aguarda a que comandes
             tus fuerzas.
           </p>
           {isAuthenticated && (
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded imperial-button"
+              className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-6 py-3 rounded imperial-button"
+              disabled={creatingMatch}
             >
-              Iniciar Nueva Campaña
+              {creatingMatch
+                ? 'Desplegando fuerzas...'
+                : 'Iniciar Nueva Campaña'}
             </button>
           )}
         </div>
       ) : (
         <div className="space-y-4">
-          {matches.map((match: Match) => (
-            <div key={match.id} className="war-zone-card p-6 rounded">
-              <div>
-                <h3 className="text-2xl font-bold flex items-center">
-                  <span className="icon-sword mr-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M14.5 17.5L3 6M16.5 15.5L21 21M12 12L21 3M12 12L3 21" />
-                    </svg>
-                  </span>
-                  Zona de Guerra
-                </h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Desplegada:{' '}
-                  {new Date(match.created_at).toLocaleString('es-ES', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </p>
+          {matches.map((match: Match) => {
+            // Determinar si el usuario actual es uno de los jugadores
+            const currentPlayerId =
+              user?.['https://hasura.io/jwt/claims']?.['x-hasura-user-id']
+            const isPlayer1 = match.player1_id === currentPlayerId
+            const isPlayer2 = match.player2_id === currentPlayerId
+            const isFullMatch = match.player2_id !== null
+            const canJoin = isAuthenticated && !isFullMatch && !isPlayer1
 
-                {/* Mostrar información sobre los jugadores */}
-                <div className="mt-2 text-sm">
-                  <span className="text-amber-400">Jugadores: </span>
-                  <span>{match.player2_id ? '2/2' : '1/2'}</span>
+            return (
+              <div
+                key={match.id}
+                className={`war-zone-card p-6 rounded transition-all duration-200 ${
+                  isPlayer1 || isPlayer2 ? 'border-l-4 border-amber-500' : ''
+                }`}
+              >
+                <div>
+                  <h3 className="text-2xl font-bold flex items-center">
+                    <span className="icon-sword mr-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M14.5 17.5L3 6M16.5 15.5L21 21M12 12L21 3M12 12L3 21" />
+                      </svg>
+                    </span>
+                    Zona de Guerra
+                    {(isPlayer1 || isPlayer2) && (
+                      <span className="ml-2 text-sm bg-amber-500/20 text-amber-500 px-2 py-1 rounded-full">
+                        {isPlayer1 ? 'Tu Campaña' : 'Participando'}
+                      </span>
+                    )}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Desplegada:{' '}
+                    {new Date(match.created_at).toLocaleString('es-ES', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </p>
+
+                  {/* Mostrar información sobre los jugadores */}
+                  <div className="mt-2 text-sm">
+                    <span className="text-amber-400">Jugadores: </span>
+                    <span className={isFullMatch ? 'text-green-400' : ''}>
+                      {isFullMatch ? '2/2' : '1/2'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex justify-end mt-4">
+                  <button
+                    onClick={() => handleEnterMatch(match)}
+                    disabled={
+                      joiningMatchId === match.id ||
+                      joiningMatch ||
+                      (!isPlayer1 && !isPlayer2 && isFullMatch)
+                    }
+                    className={`px-4 py-2 rounded imperial-button
+                      ${
+                        joiningMatchId === match.id
+                          ? 'bg-amber-700 text-amber-100 cursor-wait'
+                          : isPlayer1 || isPlayer2
+                            ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                            : canJoin
+                              ? 'bg-secondary hover:bg-secondary/90 text-secondary-foreground'
+                              : 'bg-muted text-muted-foreground cursor-not-allowed'
+                      }`}
+                  >
+                    {joiningMatchId === match.id
+                      ? 'Uniéndose...'
+                      : isPlayer1
+                        ? 'Tu Partida'
+                        : isPlayer2
+                          ? 'Continuar Partida'
+                          : isFullMatch
+                            ? 'Partida Llena'
+                            : 'Unirse a Batalla'}
+                  </button>
                 </div>
               </div>
-
-              <div className="flex justify-end mt-4">
-                <button
-                  onClick={() => handleEnterMatch(match)}
-                  disabled={joiningMatchId === match.id || joiningMatch}
-                  className={`px-4 py-2 rounded imperial-button
-                    ${
-                      joiningMatchId === match.id
-                        ? 'bg-amber-700 text-amber-100 cursor-wait'
-                        : 'bg-secondary hover:bg-secondary/90 text-secondary-foreground'
-                    }`}
-                >
-                  {joiningMatchId === match.id
-                    ? 'Uniéndose...'
-                    : match.player1_id ===
-                        user?.['https://hasura.io/jwt/claims']?.[
-                          'x-hasura-user-id'
-                        ]
-                      ? 'Tu Partida'
-                      : match.player2_id
-                        ? match.player2_id ===
-                          user?.['https://hasura.io/jwt/claims']?.[
-                            'x-hasura-user-id'
-                          ]
-                          ? 'Continuar Partida'
-                          : 'Partida Llena'
-                        : 'Unirse a Batalla'}
-                </button>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
