@@ -2,24 +2,13 @@ import React, { useState } from 'react'
 import { useQuery, useMutation } from '@apollo/client'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from 'react-router-dom'
-import { gql } from '@apollo/client'
 import CreateMatchModal from './CreateMatchModal'
-import { GET_MATCHES, CREATE_MATCH } from '../../graphql/matches'
-
-// Definir la mutación para unirse a una partida
-const JOIN_MATCH = gql`
-  mutation JoinMatch($matchId: uuid!, $player2_id: uuid!) {
-    update_matches_by_pk(
-      pk_columns: { id: $matchId }
-      _set: { player2_id: $player2_id }
-    ) {
-      id
-      status
-      player1_id
-      player2_id
-    }
-  }
-`
+import {
+  GET_MATCHES,
+  CREATE_MATCH,
+  JOIN_MATCH,
+  DELETE_MATCH,
+} from '../../graphql/matches'
 
 interface Match {
   id: string
@@ -36,6 +25,7 @@ const MatchesLobby: React.FC = () => {
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [joiningMatchId, setJoiningMatchId] = useState<string | null>(null)
+  const [deletingMatchId, setDeletingMatchId] = useState<string | null>(null)
 
   const currentPlayerId =
     user?.['https://hasura.io/jwt/claims']?.['x-hasura-user-id']
@@ -70,6 +60,19 @@ const MatchesLobby: React.FC = () => {
     },
   })
 
+  // Mutación para eliminar una partida (solo disponible para el creador)
+  const [deleteMatch, { loading: deletingMatch }] = useMutation(DELETE_MATCH, {
+    onCompleted: (data) => {
+      console.log('✅ Partida eliminada con éxito:', data)
+      setDeletingMatchId(null)
+      refetch()
+    },
+    onError: (error) => {
+      console.error('❌ Error al eliminar la partida:', error)
+      setDeletingMatchId(null)
+    },
+  })
+
   const handleCreateMatch = (name: string, totalUnits: number) => {
     // Verificar que el ID del usuario esté disponible
     if (!currentPlayerId) {
@@ -95,10 +98,6 @@ const MatchesLobby: React.FC = () => {
       return
     }
 
-    // Obtener el ID del jugador actual
-    const currentPlayerId =
-      user?.['https://hasura.io/jwt/claims']?.['x-hasura-user-id']
-
     if (!currentPlayerId) {
       console.error(
         '❌ No se encontró el UUID del jugador en los claims de Hasura.'
@@ -116,9 +115,7 @@ const MatchesLobby: React.FC = () => {
 
     // Si no es el creador y la partida no tiene un segundo jugador, unirse
     if (!match.player2_id) {
-      console.log('👤 Intentando unirse como jugador 2...')
       setJoiningMatchId(match.id)
-
       joinMatch({
         variables: {
           matchId: match.id,
@@ -126,15 +123,21 @@ const MatchesLobby: React.FC = () => {
         },
       })
     } else if (match.player2_id === currentPlayerId) {
-      // Si ya es el jugador 2, simplemente redirigir
-      console.log('🔄 Redirigiendo al jugador 2 a su partida')
       navigate(`/match/${match.id}`)
     } else {
-      // Si la partida ya tiene dos jugadores y ninguno es el usuario actual
-      console.error(
-        '❌ Esta partida ya tiene dos jugadores y no eres uno de ellos'
-      )
-      // Aquí podrías mostrar un mensaje de error o simplemente no hacer nada
+      alert('❌ Esta partida ya tiene dos jugadores y no eres uno de ellos')
+    }
+  }
+
+  // Función para eliminar una partida (solo disponible para el creador)
+  const handleDeleteMatch = (matchId: string) => {
+    if (window.confirm('¿Estás seguro de que deseas eliminar esta partida?')) {
+      setDeletingMatchId(matchId)
+      deleteMatch({
+        variables: {
+          matchId: matchId,
+        },
+      })
     }
   }
 
@@ -355,7 +358,56 @@ const MatchesLobby: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex justify-end mt-4">
+                <div className="flex justify-end mt-4 space-x-2">
+                  {/* Botón de eliminar (solo visible para el creador) */}
+                  {isPlayer1 && (
+                    <button
+                      onClick={() => handleDeleteMatch(match.id)}
+                      disabled={deletingMatchId === match.id}
+                      className="px-3 py-2 rounded imperial-button bg-red-600 hover:bg-red-700 text-white flex items-center"
+                      title="Eliminar partida"
+                    >
+                      {deletingMatchId === match.id ? (
+                        <svg
+                          className="animate-spin h-5 w-5"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                            fill="none"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                      ) : (
+                        <>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                          </svg>
+                          <span className="ml-1">Borrar</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+
+                  {/* Botón principal para unirse/entrar */}
                   <button
                     onClick={() => handleEnterMatch(match)}
                     disabled={
