@@ -7,6 +7,7 @@ import {
   LEAVE_MATCH,
 } from '../../graphql/matches'
 import BattleBoard from './BattleBoard'
+import LoadingScreen from './LoadingScreen' // Importamos el componente de carga
 
 interface Match {
   id: string
@@ -82,8 +83,8 @@ const MatchPage: React.FC = () => {
     navigate('/')
   }
 
-  if (loading)
-    return <p className="text-center text-white">Cargando partida...</p>
+  if (loading) return <LoadingScreen /> // Usamos LoadingScreen en lugar del texto simple
+
   if (error)
     return <p className="text-center text-red-500">Error: {error.message}</p>
 
@@ -241,9 +242,7 @@ const MatchPage: React.FC = () => {
                 </p>
 
                 {!connectedPlayers?.playerByPlayer2Id && (
-                  <p className="text-amber-300 text-lg mt-4">
-                    Esperando a un oponente...
-                  </p>
+                  <LoadingScreen /> // Reemplazamos el mensaje de texto por el LoadingScreen
                 )}
               </div>
             )}
