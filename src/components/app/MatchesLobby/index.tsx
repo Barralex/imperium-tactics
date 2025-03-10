@@ -7,10 +7,10 @@ import {
   ErrorDisplay,
   LoadingSkeleton,
   EmptyState,
-  AddIcon,
 } from './UIComponents'
 import MatchCard from './MatchCard'
 import { Match } from '@/types'
+import { Plus } from 'lucide-react'
 
 const MatchesLobby: React.FC = () => {
   const {
@@ -83,7 +83,7 @@ const MatchesLobby: React.FC = () => {
               isLoading={creatingMatch}
               loadingText="Creando..."
               className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3"
-              icon={<AddIcon />}
+              icon={<Plus />}
             >
               Iniciar Nueva Campaña
             </LoadingButton>

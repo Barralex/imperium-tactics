@@ -57,7 +57,7 @@ const BattleBoard: React.FC = () => {
       bgColor = 'bg-red-900'
       borderColor = 'border-red-700'
       icon = '✖'
-    } else if (piece.type === 'rango') {
+    } else if (piece.type === 'ranged') {
       bgColor = 'bg-blue-900'
       borderColor = 'border-blue-700'
       icon = '◎'

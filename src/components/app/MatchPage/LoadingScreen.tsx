@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const LoadingScreen = () => {
   const [dots, setDots] = useState('.')
@@ -118,10 +118,9 @@ const LoadingScreen = () => {
           </div>
         </div>
 
-        {/* Texto de carga - solo título sin espera ni barra */}
         <div className="mt-12 text-center">
           <h2 className="text-amber-500 text-2xl font-bold tracking-wider mb-3">
-            PREPARANDO BATALLA
+            PREPARANDO BATALLA{dots}
           </h2>
         </div>
       </div>

@@ -1,7 +1,8 @@
-// MatchCard.tsx
 import React from 'react'
 import { Match } from '../../../types'
-import { LoadingButton, SwordIcon, TrashIcon } from './UIComponents'
+import { LoadingButton } from './UIComponents'
+
+import { Trash2, Sword } from 'lucide-react'
 
 interface MatchCardProps {
   match: Match
@@ -66,7 +67,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-xl font-bold flex items-center text-amber-400">
             <span className="mr-1">
-              <SwordIcon width={16} height={16} />
+              <Sword width={16} height={16} color="#fbbf24" />
             </span>
             <span className="truncate">
               {match.match_title || 'Zona de Guerra'}
@@ -107,21 +108,20 @@ const MatchCard: React.FC<MatchCardProps> = ({
           </div>
         </div>
 
-        {/* Botones */}
         <div className="flex justify-end mt-3 space-x-2">
-          {/* Botón de eliminar (solo visible para el creador) */}
           {isPlayer1 && (
             <LoadingButton
               onClick={() => onDeleteMatch(match.id)}
               isLoading={deletingMatchId === match.id}
               loadingText=""
               className="px-2 py-1 bg-red-900 hover:bg-red-800 text-white rounded-sm text-xs"
-              title="Eliminar batalla"
-              icon={<TrashIcon width={14} height={14} />}
-            />
+              title="Eliminar"
+              icon={<Trash2 width={14} height={14} />}
+            >
+              Eliminar
+            </LoadingButton>
           )}
 
-          {/* Botón principal para unirse/entrar */}
           <button
             onClick={() => onEnterMatch(match)}
             disabled={

@@ -10,14 +10,10 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
 import { createClient } from 'graphql-ws'
 import { getMainDefinition } from '@apollo/client/utilities'
 
-// 🔹 HTTP Link para Queries & Mutations
 const httpLink = new HttpLink({
-  uri:
-    import.meta.env.VITE_HASURA_GRAPHQL_URL ||
-    'http://54.197.115.13:8080/v1/graphql',
+  uri: 'https://api.imperium-tactics.com/v1/graphql',
 })
 
-// 🔹 Middleware para autenticación
 const authLink = setContext(async (_, { headers }) => {
   const token = localStorage.getItem('auth0_token')
   if (token) {
@@ -36,12 +32,9 @@ const authLink = setContext(async (_, { headers }) => {
   }
 })
 
-// 🔹 WebSocket Link para Subscriptions
 const wsLink = new GraphQLWsLink(
   createClient({
-    url:
-      import.meta.env.VITE_HASURA_GRAPHQL_WS_URL ||
-      'ws://54.197.115.13:8080/v1/graphql', // ⚠️ Reemplázalo con `wss://` si es producción
+    url: 'wss://api.imperium-tactics.com/v1/graphql',
     connectionParams: async () => {
       const token = localStorage.getItem('auth0_token')
       return token
@@ -51,7 +44,6 @@ const wsLink = new GraphQLWsLink(
   })
 )
 
-// 🔹 `split()` decide si usar HTTP o WebSockets
 const splitLink = split(
   ({ query }) => {
     const definition = getMainDefinition(query)
@@ -64,7 +56,6 @@ const splitLink = split(
   from([authLink, httpLink])
 )
 
-// 🔹 Apollo Client con WebSockets y HTTP
 const client = new ApolloClient({
   link: splitLink,
   cache: new InMemoryCache(),
