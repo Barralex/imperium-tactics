@@ -105,6 +105,26 @@ export const useMatchPage = () => {
     })
   }
 
+  const handleUpdateBattle = () => {
+    updateMatch({
+      variables: {
+        matchId,
+        set: {
+          status: 'in_progress',
+        },
+      },
+      onCompleted: (data) => {
+        console.log('Fase finalizada con éxito:', data)
+      },
+      onError: (error) => {
+        console.error('Error al finalizar fase:', error)
+        alert(
+          'Error al finalizar fase de despliegue. Por favor intenta de nuevo.'
+        )
+      },
+    })
+  }
+
   const handleBackToLobby = () => {
     navigate('/')
   }
@@ -128,6 +148,7 @@ export const useMatchPage = () => {
     updatingMatch,
     isStartingBattle: updatingMatch,
     piecesData,
+    handleUpdateBattle,
     handleLeaveMatch,
     handleStartBattle,
     handleBackToLobby,

@@ -28,6 +28,7 @@ const MatchPage: React.FC = () => {
     handleDeployUnit,
     handleCloseModal,
     isStartingBattle,
+    handleUpdateBattle,
   } = useMatchPage()
 
   const playerPieces =
@@ -72,6 +73,7 @@ const MatchPage: React.FC = () => {
             hasOpponent={!!connectedPlayers?.playerByPlayer2Id}
             totalUnits={connectedPlayers?.total_units}
             onStartBattle={handleStartBattle}
+            onPhaseChange={handleUpdateBattle}
             onDeployUnit={handleDeployUnit}
             isHost={connectedPlayers?.player.id === currentPlayerId}
             loading={isStartingBattle}

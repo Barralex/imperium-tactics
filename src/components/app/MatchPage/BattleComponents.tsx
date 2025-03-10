@@ -165,6 +165,7 @@ interface BattleCommandsProps {
   hasOpponent: boolean
   totalUnits: number | undefined
   onStartBattle: () => void
+  onPhaseChange: () => void
   onDeployUnit: () => void
   onEndTurn?: () => void
   isHost: boolean
@@ -177,6 +178,7 @@ export const BattleCommands: React.FC<BattleCommandsProps> = ({
   hasOpponent,
   totalUnits,
   onStartBattle,
+  onPhaseChange,
   onDeployUnit,
   onEndTurn,
   isHost,
@@ -228,14 +230,48 @@ export const BattleCommands: React.FC<BattleCommandsProps> = ({
               <p className="text-amber-400 font-semibold mt-2">
                 Unidades: {totalUnits}
               </p>
+
+              {hasDeployedUnits && (
+                <div className="mt-2 bg-green-800/40 border border-green-700 rounded-md p-2 text-center">
+                  <span className="text-green-400 font-semibold flex items-center justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 mr-1.5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Unidades desplegadas
+                  </span>
+                </div>
+              )}
             </div>
 
-            <button
-              className="bg-gray-800 hover:bg-gray-700 text-gray-200 w-full px-4 py-2 rounded border border-gray-700"
-              onClick={hasDeployedUnits ? () => {} : () => onDeployUnit()}
-            >
-              {hasDeployedUnits ? 'Unidades desplegadas' : 'Desplegar unidades'}
-            </button>
+            {!hasDeployedUnits ? (
+              <button
+                className="bg-amber-600 hover:bg-amber-500 text-black w-full px-4 py-2 rounded border border-amber-700"
+                onClick={onDeployUnit}
+              >
+                Desplegar unidades
+              </button>
+            ) : (
+              isHost && (
+                <button
+                  onClick={onPhaseChange}
+                  disabled={loading}
+                  className="bg-black hover:bg-gray-900 border-2 border-amber-500 text-amber-400 font-bold uppercase w-full py-3 rounded-md shadow-lg"
+                >
+                  {loading
+                    ? 'Finalizando fase...'
+                    : 'Finalizar fase de despliegue'}
+                </button>
+              )
+            )}
           </div>
         )
 
