@@ -1,4 +1,3 @@
-// useMatchPage.ts
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useSubscription, useMutation } from '@apollo/client'
@@ -86,7 +85,7 @@ export const useMatchPage = () => {
       variables: {
         matchId,
         set: {
-          status: 'in_progress',
+          status: 'deployment',
           turn: randomPlayer,
         },
       },
@@ -121,6 +120,7 @@ export const useMatchPage = () => {
     error,
     leavingMatch,
     updatingMatch,
+    isStartingBattle: updatingMatch,
     handleLeaveMatch,
     handleStartBattle,
     handleBackToLobby,

@@ -25,6 +25,7 @@ const MatchPage: React.FC = () => {
     handleBackToLobby,
     handleDeployUnit,
     handleCloseModal,
+    isStartingBattle,
   } = useMatchPage()
 
   if (loading) return <LoadingScreen />
@@ -65,11 +66,19 @@ const MatchPage: React.FC = () => {
             onStartBattle={handleStartBattle}
             onDeployUnit={handleDeployUnit}
             isHost={connectedPlayers?.player.id === currentPlayerId}
+            loading={isStartingBattle}
           />
         </div>
 
         <div className="lg:w-2/3">
-          <BattleArea isActive={connectedPlayers?.status === 'in_progress'}>
+          <BattleArea
+            status={connectedPlayers?.status}
+            isActive={
+              connectedPlayers?.status === 'in_progress' ||
+              connectedPlayers?.status === 'deployment' ||
+              connectedPlayers?.status === 'finished'
+            }
+          >
             <BattleBoard />
           </BattleArea>
         </div>
