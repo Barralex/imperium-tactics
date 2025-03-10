@@ -14,7 +14,7 @@ import { getMainDefinition } from '@apollo/client/utilities'
 const httpLink = new HttpLink({
   uri:
     import.meta.env.VITE_HASURA_GRAPHQL_URL ||
-    'http://54.197.115.13:8080/v1/graphql',
+    'https://api.imperium-tactics.com/v1/graphql',
 })
 
 // 🔹 Middleware para autenticación
@@ -41,7 +41,7 @@ const wsLink = new GraphQLWsLink(
   createClient({
     url:
       import.meta.env.VITE_HASURA_GRAPHQL_WS_URL ||
-      'ws://54.197.115.13:8080/v1/graphql', // ⚠️ Reemplázalo con `wss://` si es producción
+      'wss://api.imperium-tactics.com/v1/graphql', // ⚠️ Reemplázalo con `wss://` si es producción
     connectionParams: async () => {
       const token = localStorage.getItem('auth0_token')
       return token
