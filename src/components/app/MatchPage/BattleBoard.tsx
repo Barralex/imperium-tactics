@@ -77,6 +77,11 @@ const BattleBoard: React.FC = () => {
     )
   }
 
+  // Función para buscar una ficha por su id (recorre el pieceMap)
+  const getPieceById = (id: string): Piece | undefined => {
+    return Object.values(pieceMap).find(piece => piece.id === id)
+  }
+
   // Generar las celdas del tablero
   const cells = []
   for (let y = 0; y < size; y++) {
@@ -91,6 +96,7 @@ const BattleBoard: React.FC = () => {
           y={y}
           onPieceDrop={handlePieceDrop}
           onEmptyCellClick={handleClearSelection}
+          getPieceById={getPieceById}
         >
           {piece && (
             <DraggablePiece
@@ -133,7 +139,12 @@ const BattleBoard: React.FC = () => {
         {error && (
           <div className="absolute inset-0 bg-black/70 flex items-center justify-center text-red-500 z-10">
             <div className="flex flex-col items-center">
-              <svg className="h-8 w-8 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <svg
+                className="h-8 w-8 mb-2"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -158,7 +169,7 @@ const BattleBoard: React.FC = () => {
           <p className="text-white">HP: {selectedPiece.hp}</p>
           <p className="text-white">Rango: {selectedPiece.range}</p>
           <p className="text-white">Movimiento: {selectedPiece.movement}</p>
-          {/* Aquí podrías usar imágenes o íconos de alguna librería para emular 40k */}
+          {/* Aquí podrías usar imágenes o íconos para emular el estilo de 40K */}
         </div>
       )}
     </div>

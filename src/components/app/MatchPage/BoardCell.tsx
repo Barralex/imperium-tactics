@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react'
 import { useDrop } from 'react-dnd'
+import { Piece } from './DraggablePiece' // Asumiendo que defines la interfaz Piece
 
 interface BoardCellProps {
   x: number
@@ -7,6 +8,8 @@ interface BoardCellProps {
   children?: React.ReactNode
   onPieceDrop: (pieceId: string, pos_x: number, pos_y: number) => void
   onEmptyCellClick: () => void
+  // Puedes pasar la pieza que está siendo arrastrada (si la tienes en algún estado global o contexto)
+  getPieceById: (id: string) => Piece | undefined
 }
 
 const BoardCell: React.FC<BoardCellProps> = ({
@@ -15,10 +18,24 @@ const BoardCell: React.FC<BoardCellProps> = ({
   children,
   onPieceDrop,
   onEmptyCellClick,
+  getPieceById,
 }) => {
+  const cellRef = useRef<HTMLDivElement>(null)
+
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: 'piece',
+    // El callback "canDrop" valida si el movimiento está dentro del rango
+    canDrop: (item: { id: string; type: string }) => {
+      // Buscar la pieza desde el id, por ejemplo, usando una función pasada como prop
+      const piece = getPieceById(item.id)
+      if (!piece) return false
+
+      // Calcular la distancia Manhattan entre la posición actual y la celda destino
+      const distance = Math.abs(piece.pos_x - x) + Math.abs(piece.pos_y - y)
+      return distance <= piece.movement
+    },
     drop: (item: { id: string; type: string }) => {
+      // Solo se ejecuta si canDrop es true
       onPieceDrop(item.id, x, y)
     },
     collect: (monitor) => ({
@@ -27,13 +44,21 @@ const BoardCell: React.FC<BoardCellProps> = ({
     }),
   })
 
-  const cellRef = useRef<HTMLDivElement>(null)
-
   useEffect(() => {
     if (cellRef.current) {
       drop(cellRef.current)
     }
   }, [drop])
+
+  // Si está sobre la celda y no es válido, mostramos rojo; si es válido, verde
+  const cellBgColor =
+    isOver && children
+      ? '' // Si hay una pieza ya en la celda, no aplicamos color
+      : isOver
+      ? canDrop
+        ? 'bg-green-500/50'
+        : 'bg-red-500/50'
+      : ''
 
   return (
     <div
@@ -45,7 +70,7 @@ const BoardCell: React.FC<BoardCellProps> = ({
       }}
       className={`w-6 h-6 border border-gray-800 relative ${
         (x + y) % 2 === 0 ? 'bg-gray-900/80' : 'bg-black/70'
-      } ${isOver && canDrop ? 'bg-green-500/50' : ''}`}
+      } ${cellBgColor}`}
       data-x={x}
       data-y={y}
     >
