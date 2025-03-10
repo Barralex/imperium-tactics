@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ApolloProvider } from '@apollo/client'
 import { Auth0Provider } from '@auth0/auth0-react'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 import client from './apolloClient'
 import App from './App'
 import MatchPage from './components/app/MatchPage'
@@ -20,12 +22,15 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
       cacheLocation="localstorage"
     >
       <ApolloProvider client={client}>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<App />} />
-            <Route path="/match/:matchId" element={<MatchPage />} />
-          </Routes>
-        </BrowserRouter>
+        {/* Envuelve TODAS las rutas con el DnDProvider */}
+        <DndProvider backend={HTML5Backend}>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<App />} />
+              <Route path="/match/:matchId" element={<MatchPage />} />
+            </Routes>
+          </BrowserRouter>
+        </DndProvider>
       </ApolloProvider>
     </Auth0Provider>
   </React.StrictMode>

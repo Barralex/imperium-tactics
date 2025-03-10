@@ -23,6 +23,8 @@
     "konva": "^9.3.18",
     "lucide-react": "^0.479.0",
     "react": "^19.0.0",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.0.0",
     "react-konva": "^19.0.3",
     "react-router-dom": "^7.3.0",

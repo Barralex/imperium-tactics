@@ -180,3 +180,16 @@ export const INSERT_PIECES = gql`
     }
   }
 `
+// 🔹 Mutación para actualizar la posición de una pieza
+export const update_pieces_by_pk = gql`
+  mutation UpdatePiecePosition($id: uuid!, $pos_x: Int!, $pos_y: Int!) {
+    update_pieces_by_pk(
+      pk_columns: { id: $id }
+      _set: { pos_x: $pos_x, pos_y: $pos_y }
+    ) {
+      id
+      pos_x
+      pos_y
+    }
+  }
+`

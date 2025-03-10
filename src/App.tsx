@@ -104,6 +104,7 @@ const App: React.FC = () => {
         </header>
 
         <main>
+          {/* Lista de partidas o tu lógica principal */}
           <MatchesLobby />
         </main>
       </div>
