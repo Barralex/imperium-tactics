@@ -1,4 +1,3 @@
-// MatchPage.tsx
 import React from 'react'
 import BattleBoard from './BattleBoard'
 import LoadingScreen from './LoadingScreen'
@@ -35,28 +34,23 @@ const MatchPage: React.FC = () => {
 
   return (
     <div className="text-white h-screen overflow-hidden">
-      {/* Modal de selección de unidades */}
       <UnitSelectionModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        maxUnidades={(connectedPlayers?.total_units ?? 0) / 2}
+        maxUnits={(connectedPlayers?.total_units ?? 0) / 2}
         playerId={currentPlayerId}
         matchId={matchId}
-        connectedPlayers={connectedPlayers}
+        playerId1={connectedPlayers?.player?.id}
       />
 
-      {/* Botón para volver al lobby */}
       <BackButton onClick={handleBackToLobby} />
 
-      {/* Cabecera con título y estado */}
       <Header
         title={connectedPlayers?.match_title || `Partida ${matchId}`}
         status={connectedPlayers?.status}
       />
 
-      {/* Layout principal con dos columnas */}
       <div className="max-w-5xl mx-auto px-4 mt-4 flex flex-col lg:flex-row gap-4">
-        {/* Panel lateral de jugadores */}
         <div className="lg:w-1/3 bg-gray-900/80 rounded-lg border border-gray-800 p-4">
           <PlayersList
             connectedPlayers={connectedPlayers}
@@ -64,7 +58,6 @@ const MatchPage: React.FC = () => {
             leavingMatch={leavingMatch}
           />
 
-          {/* Comandos de batalla */}
           <BattleCommands
             status={connectedPlayers?.status}
             hasOpponent={!!connectedPlayers?.playerByPlayer2Id}
@@ -75,7 +68,6 @@ const MatchPage: React.FC = () => {
           />
         </div>
 
-        {/* Tablero de batalla */}
         <div className="lg:w-2/3">
           <BattleArea isActive={connectedPlayers?.status === 'in_progress'}>
             <BattleBoard />

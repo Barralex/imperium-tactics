@@ -2,13 +2,13 @@ import { PIECES_SUBSCRIPTION } from '@/graphql/matches'
 import { useSubscription } from '@apollo/client'
 import { useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { Piece } from '@/types'
 
 const BattleBoard = () => {
   const { matchId } = useParams()
   const size = 20
-  const [pieceMap, setPieceMap] = useState({})
+  const [pieceMap, setPieceMap] = useState<{ [key: string]: Piece }>({})
 
-  // Suscripción a las piezas de esta partida
   const { data, loading, error } = useSubscription(PIECES_SUBSCRIPTION, {
     variables: { matchId },
     onError: (error) => {
@@ -16,11 +16,10 @@ const BattleBoard = () => {
     },
   })
 
-  // Actualizar el mapa de piezas cuando cambian los datos
   useEffect(() => {
     if (data && data.pieces) {
-      const newPieceMap = {}
-      data.pieces.forEach((piece) => {
+      const newPieceMap: { [key: string]: Piece } = {}
+      data.pieces.forEach((piece: Piece) => {
         const key = `${piece.pos_x}-${piece.pos_y}`
         newPieceMap[key] = piece
       })
@@ -28,16 +27,14 @@ const BattleBoard = () => {
     }
   }, [data])
 
-  // Función para renderizar una pieza
-  const renderPiece = (piece) => {
+  const renderPiece = (piece: Piece) => {
     let bgColor, borderColor, icon
 
-    // Determinar el estilo por tipo
     if (piece.type === 'melee') {
       bgColor = 'bg-red-900'
       borderColor = 'border-red-700'
       icon = '✖'
-    } else if (piece.type === 'rango') {
+    } else if (piece.type === 'ranged') {
       bgColor = 'bg-blue-900'
       borderColor = 'border-blue-700'
       icon = '◎'
@@ -58,7 +55,6 @@ const BattleBoard = () => {
     )
   }
 
-  // Crear el tablero
   const cells = []
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {

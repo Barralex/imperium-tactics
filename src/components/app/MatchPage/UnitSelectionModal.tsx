@@ -2,30 +2,41 @@ import { useState, useEffect } from 'react'
 import { useMutation } from '@apollo/client'
 import { INSERT_PIECES } from '@/graphql/matches'
 
+type UnitType = 'melee' | 'ranged' | 'normal'
+
+interface UnitSelectionModalProps {
+  isOpen: boolean
+  onClose: () => void
+  maxUnits?: number
+  playerId: string
+  matchId: string | undefined
+  playerId1: string | undefined
+}
+
 const UnitSelectionModal = ({
   isOpen,
   onClose,
-  maxUnidades = 10,
+  maxUnits = 10,
   playerId,
   matchId,
-  connectedPlayers,
-}) => {
-  // Define todos los hooks primero
-  const [unitCounts, setUnitCounts] = useState({
+  playerId1,
+}: UnitSelectionModalProps) => {
+  const [unitCounts, setUnitCounts] = useState<{
+    melee: number
+    ranged: number
+    normal: number
+  }>({
     melee: 0,
     ranged: 0,
     normal: 0,
   })
 
-  // Inicializar la mutación - debe estar antes de cualquier lógica condicional
   const [insertPieces, { loading: insertingPieces }] =
     useMutation(INSERT_PIECES)
 
-  // Calcular el total de unidades seleccionadas
   const totalUnits = unitCounts.melee + unitCounts.ranged + unitCounts.normal
 
   useEffect(() => {
-    // Reiniciar contadores cuando se abre el modal
     if (isOpen) {
       setUnitCounts({
         melee: 0,
@@ -35,18 +46,17 @@ const UnitSelectionModal = ({
     }
   }, [isOpen])
 
-  // Retorno temprano DESPUÉS de todos los hooks
   if (!isOpen) return null
 
-  const handleAddUnit = (unitType) => {
-    if (totalUnits < maxUnidades) {
+  const handleAddUnit = (unitType: UnitType) => {
+    if (totalUnits < maxUnits) {
       setUnitCounts((prev) => ({
         ...prev,
         [unitType]: prev[unitType] + 1,
       }))
     } else {
       alert(
-        `¡Imposible desplegar más! Límite de ${maxUnidades} unidades alcanzado.`
+        `¡Imposible desplegar más! Límite de ${maxUnits} unidades alcanzado.`
       )
     }
   }
@@ -58,36 +68,26 @@ const UnitSelectionModal = ({
     }
 
     try {
-      // Preparar los objetos para insertar en la BD
       const piecesToInsert = []
 
-      // Determinar si es el host o el contrincante
-      const isHost = connectedPlayers?.player?.id === playerId
+      const isHost = playerId1 === playerId
 
-      // Establecer rangos de posiciones basados en si es host o contrincante
       let startY, endY
+
       if (isHost) {
-        // Host - Parte inferior de la grilla (filas 15-19)
         startY = 15
         endY = 19
       } else {
-        // Contrincante - Parte superior de la grilla (filas 0-4)
         startY = 0
         endY = 4
       }
 
-      // Contador para llevar un seguimiento de las posiciones ya utilizadas
       let positionCounter = 0
 
-      // Crear objetos para unidades melee
       for (let i = 0; i < unitCounts.melee; i++) {
-        // Calcular la posición en la fila
-        const x = positionCounter % 20 // Distribuir a lo largo de la fila (0-19)
-
-        // Calcular la fila dentro del rango permitido
+        const x = positionCounter % 20
         const y = startY + Math.floor(positionCounter / 20)
 
-        // Solo agregar si aún estamos dentro del rango válido de filas
         if (y <= endY) {
           piecesToInsert.push({
             hp: 15,
@@ -95,7 +95,7 @@ const UnitSelectionModal = ({
             match_id: matchId,
             pos_x: x,
             pos_y: y,
-            range: 0, // Melee tiene rango 0
+            range: 0,
             type: 'melee',
           })
         }
@@ -103,7 +103,6 @@ const UnitSelectionModal = ({
         positionCounter++
       }
 
-      // Crear objetos para unidades de rango
       for (let i = 0; i < unitCounts.ranged; i++) {
         const x = positionCounter % 20
         const y = startY + Math.floor(positionCounter / 20)
@@ -115,7 +114,7 @@ const UnitSelectionModal = ({
             match_id: matchId,
             pos_x: x,
             pos_y: y,
-            range: 2, // Arquero tiene rango 2
+            range: 2,
             type: 'ranged',
           })
         }
@@ -123,7 +122,6 @@ const UnitSelectionModal = ({
         positionCounter++
       }
 
-      // Crear objetos para unidades normales
       for (let i = 0; i < unitCounts.normal; i++) {
         const x = positionCounter % 20
         const y = startY + Math.floor(positionCounter / 20)
@@ -135,7 +133,7 @@ const UnitSelectionModal = ({
             match_id: matchId,
             pos_x: x,
             pos_y: y,
-            range: 1, // Normal tiene rango 1
+            range: 1,
             type: 'normal',
           })
         }
@@ -143,7 +141,6 @@ const UnitSelectionModal = ({
         positionCounter++
       }
 
-      // Ejecutar la mutación para insertar todas las piezas
       const result = await insertPieces({
         variables: {
           objects: piecesToInsert,
@@ -175,13 +172,13 @@ const UnitSelectionModal = ({
               Capacidad de Despliegue:
             </span>
             <span className="text-amber-500 text-sm">
-              {totalUnits}/{maxUnidades}
+              {totalUnits}/{maxUnits}
             </span>
           </div>
           <div className="w-full bg-gray-800 rounded-full h-2.5">
             <div
               className="bg-amber-600 h-2.5 rounded-full"
-              style={{ width: `${(totalUnits / maxUnidades) * 100}%` }}
+              style={{ width: `${(totalUnits / maxUnits) * 100}%` }}
             ></div>
           </div>
         </div>
@@ -191,7 +188,7 @@ const UnitSelectionModal = ({
           <div className="flex flex-col items-center">
             <div
               className={`w-20 h-20 rounded-full flex items-center justify-center cursor-pointer 
-                        bg-red-900 border-2 ${totalUnits < maxUnidades ? 'hover:bg-red-800 border-red-700' : 'opacity-50 cursor-not-allowed border-gray-700'}`}
+                        bg-red-900 border-2 ${totalUnits < maxUnits ? 'hover:bg-red-800 border-red-700' : 'opacity-50 cursor-not-allowed border-gray-700'}`}
               onClick={() => handleAddUnit('melee')}
             >
               <svg
@@ -217,7 +214,7 @@ const UnitSelectionModal = ({
           <div className="flex flex-col items-center">
             <div
               className={`w-20 h-20 rounded-full flex items-center justify-center cursor-pointer 
-                        bg-blue-900 border-2 ${totalUnits < maxUnidades ? 'hover:bg-blue-800 border-blue-700' : 'opacity-50 cursor-not-allowed border-gray-700'}`}
+                        bg-blue-900 border-2 ${totalUnits < maxUnits ? 'hover:bg-blue-800 border-blue-700' : 'opacity-50 cursor-not-allowed border-gray-700'}`}
               onClick={() => handleAddUnit('ranged')}
             >
               <svg
@@ -245,7 +242,7 @@ const UnitSelectionModal = ({
           <div className="flex flex-col items-center">
             <div
               className={`w-20 h-20 rounded-full flex items-center justify-center cursor-pointer 
-                        bg-amber-800 border-2 ${totalUnits < maxUnidades ? 'hover:bg-amber-700 border-amber-600' : 'opacity-50 cursor-not-allowed border-gray-700'}`}
+                        bg-amber-800 border-2 ${totalUnits < maxUnits ? 'hover:bg-amber-700 border-amber-600' : 'opacity-50 cursor-not-allowed border-gray-700'}`}
               onClick={() => handleAddUnit('normal')}
             >
               <svg

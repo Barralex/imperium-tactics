@@ -1,4 +1,3 @@
-// types.ts
 export interface Match {
   id: string
   status: string
@@ -28,7 +27,7 @@ export interface MatchDetails {
 export interface UnitSelectionModalProps {
   isOpen: boolean
   onClose: () => void
-  maxUnidades: number
+  maxUnits: number
   playerId: string | undefined
   matchId: string | undefined
   connectedPlayers: MatchDetails | null
@@ -53,4 +52,15 @@ export interface LoadingButtonProps extends ButtonProps {
   isLoading: boolean
   loadingText: string
   icon?: React.ReactNode
+}
+
+export type Piece = {
+  pos_x: number
+  pos_y: number
+  type: 'melee' | 'ranged' | 'normal'
+  hp: number
+  range: number
+  movement?: number
+  player_id?: string
+  match_id?: string
 }
