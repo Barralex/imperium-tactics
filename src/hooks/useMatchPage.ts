@@ -6,6 +6,7 @@ import {
   GET_MATCH_SUBSCRIPTION,
   UPDATE_MATCH,
   LEAVE_MATCH,
+  PIECES_SUBSCRIPTION,
 } from '../graphql/matches'
 import { MatchDetails } from '../types'
 
@@ -23,6 +24,11 @@ export const useMatchPage = () => {
 
   // Suscribirse a cambios en la partida
   const { data, loading, error } = useSubscription(GET_MATCH_SUBSCRIPTION, {
+    variables: { matchId },
+  })
+
+  // Suscripción a las piezas
+  const { data: piecesData } = useSubscription(PIECES_SUBSCRIPTION, {
     variables: { matchId },
   })
 
@@ -121,6 +127,7 @@ export const useMatchPage = () => {
     leavingMatch,
     updatingMatch,
     isStartingBattle: updatingMatch,
+    piecesData,
     handleLeaveMatch,
     handleStartBattle,
     handleBackToLobby,

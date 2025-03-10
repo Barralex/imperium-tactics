@@ -16,7 +16,7 @@ interface UnitSelectionModalProps {
 const UnitSelectionModal = ({
   isOpen,
   onClose,
-  maxUnits = 10,
+  maxUnits = 5,
   playerId,
   matchId,
   playerId1,
@@ -35,6 +35,8 @@ const UnitSelectionModal = ({
     useMutation(INSERT_PIECES)
 
   const totalUnits = unitCounts.melee + unitCounts.ranged + unitCounts.normal
+
+  const isDeploymentReady = totalUnits === maxUnits
 
   useEffect(() => {
     if (isOpen) {
@@ -61,9 +63,20 @@ const UnitSelectionModal = ({
     }
   }
 
+  const handleRemoveUnit = (unitType: UnitType) => {
+    if (unitCounts[unitType] > 0) {
+      setUnitCounts((prev) => ({
+        ...prev,
+        [unitType]: prev[unitType] - 1,
+      }))
+    }
+  }
+
   const handleDeploy = async () => {
-    if (totalUnits === 0) {
-      alert('¡Debes seleccionar al menos una unidad para desplegar!')
+    if (totalUnits !== maxUnits) {
+      alert(
+        `¡Debes seleccionar exactamente ${maxUnits} unidades para desplegar!`
+      )
       return
     }
 
@@ -155,136 +168,187 @@ const UnitSelectionModal = ({
     }
   }
 
+  const unitInfo = {
+    melee: {
+      name: 'Guerrero',
+      description: 'Unidades cuerpo a cuerpo con alto HP',
+      stats: 'HP: 15 | Alcance: 0 | Especialidad: combate frontal',
+      bgColor: 'bg-red-900',
+      hoverColor: 'hover:bg-red-800',
+      borderColor: 'border-red-700',
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-10 w-10 text-white"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      ),
+    },
+    ranged: {
+      name: 'Arquero',
+      description: 'Unidades de ataque a distancia',
+      stats: 'HP: 10 | Alcance: 2 | Especialidad: ataques de largo alcance',
+      bgColor: 'bg-blue-900',
+      hoverColor: 'hover:bg-blue-800',
+      borderColor: 'border-blue-700',
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-10 w-10 text-white"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"
+          />
+        </svg>
+      ),
+    },
+    normal: {
+      name: 'Soldado',
+      description: 'Unidades versátiles equilibradas',
+      stats: 'HP: 12 | Alcance: 1 | Especialidad: adaptabilidad',
+      bgColor: 'bg-amber-800',
+      hoverColor: 'hover:bg-amber-700',
+      borderColor: 'border-amber-600',
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-10 w-10 text-white"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
+          />
+        </svg>
+      ),
+    },
+  }
+
   return (
     <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
       <div
-        className="bg-gray-900 border border-amber-900/30 rounded-lg p-6 max-w-md w-full"
+        className="bg-gray-900 border border-amber-900/30 rounded-lg p-6 max-w-2xl w-full h-auto"
         style={{ backgroundColor: '#1a1f2e' }}
       >
-        <h3 className="text-xl font-bold text-amber-500 text-center mb-6">
+        <h2 className="text-2xl font-bold text-amber-500 text-center mb-4">
           Seleccionar Tipo de Unidad
-        </h3>
+        </h2>
 
-        {/* Barra de límite de unidades */}
-        <div className="mb-6 px-2">
+        <div className="mb-5 px-2">
           <div className="flex justify-between mb-1">
-            <span className="text-amber-500 text-sm">
+            <span className="text-amber-500 text-sm font-semibold">
               Capacidad de Despliegue:
             </span>
-            <span className="text-amber-500 text-sm">
+            <span
+              className={`text-sm font-semibold ${isDeploymentReady ? 'text-green-500' : 'text-amber-500'}`}
+            >
               {totalUnits}/{maxUnits}
             </span>
           </div>
           <div className="w-full bg-gray-800 rounded-full h-2.5">
             <div
-              className="bg-amber-600 h-2.5 rounded-full"
+              className={`h-2.5 rounded-full transition-all ${isDeploymentReady ? 'bg-green-600' : 'bg-amber-600'}`}
               style={{ width: `${(totalUnits / maxUnits) * 100}%` }}
             ></div>
           </div>
-        </div>
-
-        <div className="flex justify-center space-x-8 mb-8">
-          {/* Unidad Melee */}
-          <div className="flex flex-col items-center">
-            <div
-              className={`w-20 h-20 rounded-full flex items-center justify-center cursor-pointer 
-                        bg-red-900 border-2 ${totalUnits < maxUnits ? 'hover:bg-red-800 border-red-700' : 'opacity-50 cursor-not-allowed border-gray-700'}`}
-              onClick={() => handleAddUnit('melee')}
+          <div className="text-center mt-1">
+            <span
+              className={`text-xs ${isDeploymentReady ? 'text-green-500' : 'text-gray-400'}`}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-10 w-10 text-white"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </div>
-            <span className="text-white mt-2">Melee</span>
-            <span className="text-amber-500 font-bold">{unitCounts.melee}</span>
-          </div>
-
-          {/* Unidad Rango */}
-          <div className="flex flex-col items-center">
-            <div
-              className={`w-20 h-20 rounded-full flex items-center justify-center cursor-pointer 
-                        bg-blue-900 border-2 ${totalUnits < maxUnits ? 'hover:bg-blue-800 border-blue-700' : 'opacity-50 cursor-not-allowed border-gray-700'}`}
-              onClick={() => handleAddUnit('ranged')}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-10 w-10 text-white"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"
-                />
-              </svg>
-            </div>
-            <span className="text-white mt-2">Rango</span>
-            <span className="text-amber-500 font-bold">
-              {unitCounts.ranged}
-            </span>
-          </div>
-
-          {/* Unidad Normal */}
-          <div className="flex flex-col items-center">
-            <div
-              className={`w-20 h-20 rounded-full flex items-center justify-center cursor-pointer 
-                        bg-amber-800 border-2 ${totalUnits < maxUnits ? 'hover:bg-amber-700 border-amber-600' : 'opacity-50 cursor-not-allowed border-gray-700'}`}
-              onClick={() => handleAddUnit('normal')}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-10 w-10 text-white"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
-                />
-              </svg>
-            </div>
-            <span className="text-white mt-2">Normal</span>
-            <span className="text-amber-500 font-bold">
-              {unitCounts.normal}
+              {isDeploymentReady
+                ? '¡Listo para desplegar!'
+                : `Selecciona exactamente ${maxUnits} unidades para desplegar`}
             </span>
           </div>
         </div>
 
-        <div className="text-center mb-4">
-          <p className="text-amber-500 font-bold">
-            Unidades seleccionadas: {totalUnits}
-          </p>
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          {(Object.keys(unitInfo) as UnitType[]).map((type) => (
+            <div
+              key={type}
+              className="bg-gray-800/50 rounded-lg p-4 border border-gray-700"
+            >
+              <div className="flex flex-col items-center mb-2">
+                <div
+                  className={`w-16 h-16 rounded-full flex items-center justify-center 
+                    ${unitInfo[type].bgColor} border-2 ${unitInfo[type].borderColor}`}
+                >
+                  {unitInfo[type].icon}
+                </div>
+                <h3 className="text-white mt-2 font-semibold">
+                  {unitInfo[type].name}
+                </h3>
+                <div className="flex items-center mt-1 mb-2">
+                  <button
+                    onClick={() => handleRemoveUnit(type)}
+                    className="w-8 h-8 rounded-l bg-gray-700 hover:bg-gray-600 flex items-center justify-center text-white border border-gray-600"
+                    disabled={unitCounts[type] <= 0}
+                  >
+                    <span className="text-xl">-</span>
+                  </button>
+                  <div className="w-10 h-8 bg-gray-800 flex items-center justify-center text-amber-500 font-bold border-t border-b border-gray-600">
+                    {unitCounts[type]}
+                  </div>
+                  <button
+                    onClick={() => handleAddUnit(type)}
+                    className="w-8 h-8 rounded-r bg-gray-700 hover:bg-gray-600 flex items-center justify-center text-white border border-gray-600"
+                    disabled={totalUnits >= maxUnits}
+                  >
+                    <span className="text-xl">+</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="text-xs text-gray-300 mt-2">
+                <p className="mb-1">{unitInfo[type].description}</p>
+                <p className="text-amber-400">{unitInfo[type].stats}</p>
+              </div>
+            </div>
+          ))}
         </div>
 
         <div className="flex justify-center space-x-4">
           <button
             onClick={handleDeploy}
-            disabled={insertingPieces || totalUnits === 0}
-            className={`bg-green-900 hover:bg-green-800 text-gray-200 px-6 py-2 rounded border border-green-700 font-semibold transition
-                       ${insertingPieces || totalUnits === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={insertingPieces || !isDeploymentReady}
+            className={`relative flex items-center justify-center bg-amber-900 text-gray-200 px-6 py-3 rounded border-2 border-amber-700 font-semibold transition-all
+           ${
+             isDeploymentReady
+               ? 'hover:bg-amber-800 hover:scale-105 shadow-lg shadow-amber-900/30'
+               : 'opacity-50 cursor-not-allowed bg-gray-700 border-gray-600'
+           }`}
           >
-            {insertingPieces ? 'Desplegando...' : 'Desplegar Batallón'}
+            {insertingPieces ? (
+              <>
+                <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+                Desplegando...
+              </>
+            ) : (
+              'Desplegar Batallón'
+            )}
           </button>
           <button
             onClick={onClose}
-            className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-6 py-2 rounded border border-gray-700 transition"
+            className="bg-gray-800 hover:bg-gray-700 text-gray-300 px-6 py-3 rounded border border-gray-700 transition hover:text-white"
           >
             Cancelar
           </button>

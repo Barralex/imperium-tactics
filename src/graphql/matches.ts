@@ -65,6 +65,17 @@ export const UPDATE_MATCH = gql`
   }
 `
 
+export const FINALIZE_MATCH = gql`
+  mutation FinalizeMatch($matchId: uuid!) {
+    update_matches_by_pk(
+      pk_columns: { id: $matchId }
+      _set: { status: "in_progress" }
+    ) {
+      id
+    }
+  }
+`
+
 // 🔹 Mutación para que el jugador 2 abandone una partida
 export const LEAVE_MATCH = gql`
   mutation LeaveMatch($matchId: uuid!) {

@@ -10,6 +10,7 @@ import {
   BattleCommands,
   BattleArea,
 } from './BattleComponents'
+import { Piece } from '@/types'
 
 const MatchPage: React.FC = () => {
   const {
@@ -20,6 +21,7 @@ const MatchPage: React.FC = () => {
     loading,
     error,
     leavingMatch,
+    piecesData,
     handleLeaveMatch,
     handleStartBattle,
     handleBackToLobby,
@@ -27,6 +29,12 @@ const MatchPage: React.FC = () => {
     handleCloseModal,
     isStartingBattle,
   } = useMatchPage()
+
+  const playerPieces =
+    piecesData?.pieces?.filter(
+      (piece: Piece) => piece.player_id === currentPlayerId
+    ) || []
+  const hasDeployedUnits = playerPieces.length > 0
 
   if (loading) return <LoadingScreen />
 
@@ -67,6 +75,7 @@ const MatchPage: React.FC = () => {
             onDeployUnit={handleDeployUnit}
             isHost={connectedPlayers?.player.id === currentPlayerId}
             loading={isStartingBattle}
+            hasDeployedUnits={hasDeployedUnits}
           />
         </div>
 

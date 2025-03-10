@@ -169,6 +169,7 @@ interface BattleCommandsProps {
   onEndTurn?: () => void
   isHost: boolean
   loading: boolean
+  hasDeployedUnits: boolean
 }
 
 export const BattleCommands: React.FC<BattleCommandsProps> = ({
@@ -180,6 +181,7 @@ export const BattleCommands: React.FC<BattleCommandsProps> = ({
   onEndTurn,
   isHost,
   loading,
+  hasDeployedUnits,
 }) => {
   const renderCommandsByStatus = () => {
     switch (status) {
@@ -230,16 +232,9 @@ export const BattleCommands: React.FC<BattleCommandsProps> = ({
 
             <button
               className="bg-gray-800 hover:bg-gray-700 text-gray-200 w-full px-4 py-2 rounded border border-gray-700"
-              onClick={onDeployUnit}
+              onClick={hasDeployedUnits ? () => {} : () => onDeployUnit()}
             >
-              Desplegar unidad
-            </button>
-
-            <button
-              className="bg-amber-700 hover:bg-amber-600 text-amber-100 w-full px-4 py-2 rounded border border-amber-900"
-              onClick={onEndTurn}
-            >
-              Finalizar Despliegue
+              {hasDeployedUnits ? 'Unidades desplegadas' : 'Desplegar unidades'}
             </button>
           </div>
         )
