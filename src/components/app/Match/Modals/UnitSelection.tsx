@@ -1,26 +1,18 @@
 import { useState, useEffect } from 'react'
 import { useMutation } from '@apollo/client'
 import { INSERT_PIECES } from '@/graphql/matches'
+import { UnitSelectionProps } from '@/types'
 
 type UnitType = 'melee' | 'ranged' | 'normal'
 
-interface UnitSelectionModalProps {
-  isOpen: boolean
-  onClose: () => void
-  maxUnits?: number
-  playerId: string
-  matchId: string | undefined
-  playerId1: string | undefined
-}
-
-const UnitSelectionModal = ({
+const UnitSelection = ({
   isOpen,
   onClose,
   maxUnits = 5,
   playerId,
   matchId,
   playerId1,
-}: UnitSelectionModalProps) => {
+}: UnitSelectionProps) => {
   const [unitCounts, setUnitCounts] = useState<{
     melee: number
     ranged: number
@@ -358,4 +350,4 @@ const UnitSelectionModal = ({
   )
 }
 
-export default UnitSelectionModal
+export default UnitSelection

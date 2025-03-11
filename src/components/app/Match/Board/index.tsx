@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useSubscription, useMutation } from '@apollo/client'
 import { PIECES_SUBSCRIPTION, update_pieces_by_pk } from '@/graphql/matches'
-import BoardCell from './BoardCell'
-import DraggablePiece, { Piece } from './DraggablePiece'
+import { Piece } from '@/types'
+import Cell from './Cell'
+import DraggablePiece from './Piece'
 
-const BattleBoard: React.FC = () => {
+const Board: React.FC = () => {
   const { matchId } = useParams<{ matchId: string }>()
   const size = 20
   const [pieceMap, setPieceMap] = useState<Record<string, Piece>>({})
@@ -14,7 +15,8 @@ const BattleBoard: React.FC = () => {
   // Suscripción a las piezas
   const { data, loading, error } = useSubscription(PIECES_SUBSCRIPTION, {
     variables: { matchId },
-    onError: (error) => console.error('Error en la suscripción de piezas:', error),
+    onError: (error) =>
+      console.error('Error en la suscripción de piezas:', error),
   })
 
   useEffect(() => {
@@ -31,7 +33,11 @@ const BattleBoard: React.FC = () => {
   // Mutation para actualizar la posición de la pieza en la BD
   const [updatePiecePosition] = useMutation(update_pieces_by_pk)
 
-  const handlePieceDrop = async (pieceId: string, newX: number, newY: number) => {
+  const handlePieceDrop = async (
+    pieceId: string,
+    newX: number,
+    newY: number
+  ) => {
     try {
       await updatePiecePosition({
         variables: { id: pieceId, pos_x: newX, pos_y: newY },
@@ -79,7 +85,7 @@ const BattleBoard: React.FC = () => {
 
   // Función para buscar una ficha por su id (recorre el pieceMap)
   const getPieceById = (id: string): Piece | undefined => {
-    return Object.values(pieceMap).find(piece => piece.id === id)
+    return Object.values(pieceMap).find((piece) => piece.id === id)
   }
 
   // Generar las celdas del tablero
@@ -90,7 +96,7 @@ const BattleBoard: React.FC = () => {
       const piece = pieceMap[key]
 
       cells.push(
-        <BoardCell
+        <Cell
           key={key}
           x={x}
           y={y}
@@ -105,7 +111,7 @@ const BattleBoard: React.FC = () => {
               onSelect={handleSelectPiece}
             />
           )}
-        </BoardCell>
+        </Cell>
       )
     }
   }
@@ -132,7 +138,9 @@ const BattleBoard: React.FC = () => {
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
               </svg>
-              <span className="font-bold">Conectando al campo de batalla...</span>
+              <span className="font-bold">
+                Conectando al campo de batalla...
+              </span>
             </div>
           </div>
         )}
@@ -164,7 +172,9 @@ const BattleBoard: React.FC = () => {
       {/* Panel con las estadísticas de la ficha seleccionada */}
       {selectedPiece && (
         <div className="mt-4 p-4 border border-gray-700 bg-gray-900 rounded shadow-lg">
-          <h3 className="text-lg font-bold text-amber-500">Estadísticas de la Unidad</h3>
+          <h3 className="text-lg font-bold text-amber-500">
+            Estadísticas de la Unidad
+          </h3>
           <p className="text-white">Tipo: {selectedPiece.type}</p>
           <p className="text-white">HP: {selectedPiece.hp}</p>
           <p className="text-white">Rango: {selectedPiece.range}</p>
@@ -176,4 +186,4 @@ const BattleBoard: React.FC = () => {
   )
 }
 
-export default BattleBoard
+export default Board

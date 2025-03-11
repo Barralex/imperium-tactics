@@ -1,17 +1,7 @@
+import { Piece } from '@/types'
 import React, { useRef, useEffect } from 'react'
 import { useDrag } from 'react-dnd'
 import { JSX } from 'react/jsx-runtime'
-
-export interface Piece {
-  id: string
-  pos_x: number
-  pos_y: number
-  type: string
-  hp: number
-  range: number
-  movement: number
-  // otros campos si es necesario
-}
 
 interface DraggablePieceProps {
   piece: Piece

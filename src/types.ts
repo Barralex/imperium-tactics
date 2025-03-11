@@ -24,13 +24,13 @@ export interface MatchDetails {
   turn?: string
 }
 
-export interface UnitSelectionModalProps {
+export interface UnitSelectionProps {
   isOpen: boolean
   onClose: () => void
   maxUnits: number
   playerId: string | undefined
   matchId: string | undefined
-  connectedPlayers: MatchDetails | null
+  playerId1: string | undefined
 }
 
 export interface ModalProps {
@@ -55,6 +55,7 @@ export interface LoadingButtonProps extends ButtonProps {
 }
 
 export type Piece = {
+  id: string
   pos_x: number
   pos_y: number
   type: 'melee' | 'ranged' | 'normal'

@@ -1,18 +1,17 @@
+import { Piece } from '@/types'
 import React, { useRef, useEffect } from 'react'
 import { useDrop } from 'react-dnd'
-import { Piece } from './DraggablePiece' // Asumiendo que defines la interfaz Piece
 
-interface BoardCellProps {
+interface CellProps {
   x: number
   y: number
   children?: React.ReactNode
   onPieceDrop: (pieceId: string, pos_x: number, pos_y: number) => void
   onEmptyCellClick: () => void
-  // Puedes pasar la pieza que está siendo arrastrada (si la tienes en algún estado global o contexto)
   getPieceById: (id: string) => Piece | undefined
 }
 
-const BoardCell: React.FC<BoardCellProps> = ({
+const BoardCell: React.FC<CellProps> = ({
   x,
   y,
   children,
@@ -32,7 +31,7 @@ const BoardCell: React.FC<BoardCellProps> = ({
 
       // Calcular la distancia Manhattan entre la posición actual y la celda destino
       const distance = Math.abs(piece.pos_x - x) + Math.abs(piece.pos_y - y)
-      return distance <= piece.movement
+      return piece.movement !== undefined && distance <= piece.movement
     },
     drop: (item: { id: string; type: string }) => {
       // Solo se ejecuta si canDrop es true
@@ -55,10 +54,10 @@ const BoardCell: React.FC<BoardCellProps> = ({
     isOver && children
       ? '' // Si hay una pieza ya en la celda, no aplicamos color
       : isOver
-      ? canDrop
-        ? 'bg-green-500/50'
-        : 'bg-red-500/50'
-      : ''
+        ? canDrop
+          ? 'bg-green-500/50'
+          : 'bg-red-500/50'
+        : ''
 
   return (
     <div
