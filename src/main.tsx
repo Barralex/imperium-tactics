@@ -9,6 +9,7 @@ import client from './lib/apolloClient'
 import App from './App'
 import Match from './components/app/Match'
 import './index.css'
+import NotFound from './components/app/NotFound'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
@@ -28,6 +29,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
             <Routes>
               <Route path="/" element={<App />} />
               <Route path="/match/:matchId" element={<Match />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </DndProvider>
