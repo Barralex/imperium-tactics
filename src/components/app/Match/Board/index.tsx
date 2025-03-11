@@ -4,7 +4,7 @@ import { useSubscription, useMutation } from '@apollo/client'
 import { PIECES_SUBSCRIPTION, update_pieces_by_pk } from '@/graphql/matches'
 import { Piece } from '@/types'
 import Cell from './Cell'
-import DraggablePiece from './Piece'
+import DraggablePiece from './DraggablePiece'
 
 const Board: React.FC = () => {
   const { matchId } = useParams<{ matchId: string }>()
