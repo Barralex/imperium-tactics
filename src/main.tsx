@@ -5,9 +5,9 @@ import { ApolloProvider } from '@apollo/client'
 import { Auth0Provider } from '@auth0/auth0-react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import client from './apolloClient'
+import client from './lib/apolloClient'
 import App from './App'
-import MatchPage from './components/app/MatchPage'
+import Match from './components/app/Match'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
@@ -27,7 +27,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<App />} />
-              <Route path="/match/:matchId" element={<MatchPage />} />
+              <Route path="/match/:matchId" element={<Match />} />
             </Routes>
           </BrowserRouter>
         </DndProvider>

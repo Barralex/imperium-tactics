@@ -21,6 +21,7 @@
     "clsx": "^2.1.1",
     "graphql": "^16.10.0",
     "graphql-ws": "^6.0.4",
+    "immer": "^10.1.1",
     "konva": "^9.3.18",
     "lucide-react": "^0.479.0",
     "react": "^19.0.0",
@@ -32,7 +33,9 @@
     "subscriptions-transport-ws": "^0.11.0",
     "tailwind-merge": "^3.0.2",
     "tailwindcss": "^4.0.12",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zustand": "^5.0.3",
+    "zustand-middleware-yjs": "^1.3.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
