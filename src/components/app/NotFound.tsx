@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LoadingButton } from './MatchesLobby/UIComponents'
+import { LoadingButton } from './Lobby/ActionButtons'
 
 const NotFound: React.FC = () => {
   const navigate = useNavigate()

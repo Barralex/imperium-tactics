@@ -1,8 +1,11 @@
+// Lobby/components/UIComponents.tsx
 import React from 'react'
-import { ButtonProps, LoadingButtonProps } from '../../../types'
 
+/**
+ * Componente de spinner de carga animado
+ */
 export const LoadingSpinner: React.FC = () => (
-  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" data-testid="loading-spinner">
     <circle
       className="opacity-25"
       cx="12"
@@ -20,56 +23,14 @@ export const LoadingSpinner: React.FC = () => (
   </svg>
 )
 
-export const Button: React.FC<ButtonProps> = ({
-  onClick,
-  disabled = false,
-  className = '',
-  title,
-  children,
-}) => (
-  <button
-    onClick={onClick}
-    disabled={disabled}
-    className={`imperial-button rounded ${className}`}
-    title={title}
-  >
-    {children}
-  </button>
-)
-
-export const LoadingButton: React.FC<LoadingButtonProps> = ({
-  onClick,
-  disabled = false,
-  isLoading,
-  loadingText,
-  className = '',
-  children,
-  icon,
-}) => (
-  <Button
-    onClick={onClick}
-    disabled={disabled || isLoading}
-    className={`flex items-center gap-2 ${className}`}
-  >
-    {isLoading ? (
-      <>
-        <LoadingSpinner />
-        {loadingText}
-      </>
-    ) : (
-      <>
-        {icon}
-        {children}
-      </>
-    )}
-  </Button>
-)
-
+/**
+ * Componente para mostrar mensajes de error con opción de reintentar
+ */
 export const ErrorDisplay: React.FC<{
   message: string
   onRetry: () => void
 }> = ({ message, onRetry }) => (
-  <div className="container mx-auto px-4 py-8">
+  <div className="container mx-auto px-4 py-8" data-testid="error-display">
     <div className="border border-destructive p-6 bg-destructive/10 rounded-lg text-center">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -101,33 +62,43 @@ export const ErrorDisplay: React.FC<{
   </div>
 )
 
+/**
+ * Componente de skeleton para mostrar durante la carga inicial
+ */
 export const LoadingSkeleton: React.FC = () => (
-  <div className="container mx-auto px-4 py-8">
+  <div className="container mx-auto px-4 py-8" data-testid="loading-skeleton">
     <div className="flex justify-between items-center mb-8">
       <div className="h-8 bg-muted/30 w-64 rounded animate-pulse"></div>
       <div className="h-10 bg-muted/30 w-48 rounded animate-pulse"></div>
     </div>
 
-    {[...Array(3)].map((_, index) => (
-      <div key={index} className="war-zone-card mb-4 p-6 animate-pulse">
-        <div>
-          <div className="h-7 bg-muted rounded w-2/5 mb-3"></div>
-          <div className="h-5 bg-muted/60 rounded w-1/3 mb-4"></div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {[...Array(6)].map((_, index) => (
+        <div key={index} className="war-zone-card p-6 animate-pulse">
+          <div>
+            <div className="h-7 bg-muted rounded w-2/5 mb-3"></div>
+            <div className="h-5 bg-muted/60 rounded w-1/3 mb-4"></div>
+            <div className="h-4 bg-muted/40 rounded w-full mb-2"></div>
+            <div className="h-4 bg-muted/40 rounded w-4/5 mb-4"></div>
+          </div>
+          <div className="flex justify-end mt-4">
+            <div className="h-8 bg-muted/40 rounded w-32"></div>
+          </div>
         </div>
-        <div className="flex justify-end mt-4">
-          <div className="h-10 bg-muted/40 rounded w-32"></div>
-        </div>
-      </div>
-    ))}
+      ))}
+    </div>
   </div>
 )
 
+/**
+ * Componente para mostrar cuando no hay partidas disponibles
+ */
 export const EmptyState: React.FC<{
   onCreateMatch: () => void
   isAuthenticated: boolean
   isCreating: boolean
 }> = ({ onCreateMatch, isAuthenticated, isCreating }) => (
-  <div className="empty-state p-10 border-2 border-dashed border-muted rounded-lg text-center">
+  <div className="empty-state p-10 border-2 border-dashed border-muted rounded-lg text-center" data-testid="empty-state">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       className="mx-auto text-muted-foreground mb-4 h-16 w-16"
@@ -150,6 +121,7 @@ export const EmptyState: React.FC<{
         onClick={onCreateMatch}
         className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-6 py-3 rounded imperial-button"
         disabled={isCreating}
+        data-testid="create-match-button"
       >
         {isCreating ? 'Desplegando fuerzas...' : 'Iniciar Nueva Campaña'}
       </button>

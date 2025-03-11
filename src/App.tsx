@@ -1,6 +1,6 @@
 import React from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
-import MatchesLobby from './components/app/MatchesLobby'
+import MatchesLobby from './components/app/Lobby'
 
 const App: React.FC = () => {
   const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0()

@@ -1,5 +1,5 @@
-// src/components/CreateMatchModal.tsx
-import React, { useState } from 'react'
+// Lobby/components/CreateMatchModal.tsx
+import React, { useState, useEffect } from 'react'
 
 interface CreateMatchModalProps {
   isOpen: boolean
@@ -8,6 +8,9 @@ interface CreateMatchModalProps {
   isLoading: boolean
 }
 
+/**
+ * Modal para crear una nueva partida con opciones configurables
+ */
 const CreateMatchModal: React.FC<CreateMatchModalProps> = ({
   isOpen,
   onClose,
@@ -17,6 +20,15 @@ const CreateMatchModal: React.FC<CreateMatchModalProps> = ({
   const [name, setName] = useState('')
   const [totalUnits, setTotalUnits] = useState(5)
   const [error, setError] = useState('')
+  
+  // Resetear valores al abrir el modal
+  useEffect(() => {
+    if (isOpen) {
+      setName('')
+      setTotalUnits(5)
+      setError('')
+    }
+  }, [isOpen])
 
   // Si el modal no está abierto, no renderizar nada
   if (!isOpen) return null
@@ -41,7 +53,10 @@ const CreateMatchModal: React.FC<CreateMatchModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-      <div className="bg-gray-900 border border-amber-900 rounded-lg p-6 w-full max-w-md">
+      <div 
+        className="bg-gray-900 border border-amber-900 rounded-lg p-6 w-full max-w-md"
+        onClick={(e) => e.stopPropagation()} // Prevenir cierre al hacer clic en el contenido
+      >
         <h2 className="text-xl font-bold mb-4 text-amber-500">
           Crear nueva Campaña
         </h2>
@@ -70,10 +85,12 @@ const CreateMatchModal: React.FC<CreateMatchModalProps> = ({
               } rounded-md focus:outline-none focus:ring-2`}
               placeholder="Ingresa un nombre para tu campaña"
               disabled={isLoading}
+              data-testid="match-name-input"
             />
+            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
           </div>
 
-          {/* Selector de unidades - Solo visual por ahora */}
+          {/* Selector de unidades */}
           <div className="mb-6">
             <label
               htmlFor="totalUnits"
@@ -88,10 +105,9 @@ const CreateMatchModal: React.FC<CreateMatchModalProps> = ({
               min="1"
               max="10"
               value={totalUnits}
-              onChange={(e) => {
-                setTotalUnits(parseInt(e.target.value))
-              }}
+              onChange={(e) => setTotalUnits(parseInt(e.target.value))}
               className="w-full accent-amber-500 mb-2"
+              data-testid="units-range"
             />
 
             <div className="flex justify-between mb-2">
@@ -108,15 +124,14 @@ const CreateMatchModal: React.FC<CreateMatchModalProps> = ({
             </p>
           </div>
 
-          {/* Mensaje de error */}
-          {error && <p className="mb-4 text-sm text-red-500">{error}</p>}
-
+          {/* Botones de acción */}
           <div className="flex justify-end space-x-3">
             <button
               type="button"
               onClick={onClose}
               className="px-4 py-2 border border-gray-700 rounded-md text-gray-300 hover:bg-gray-800 transition-colors"
               disabled={isLoading}
+              data-testid="cancel-button"
             >
               Cancelar
             </button>
@@ -124,6 +139,7 @@ const CreateMatchModal: React.FC<CreateMatchModalProps> = ({
               type="submit"
               className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-black font-bold rounded-md transition-colors disabled:opacity-70"
               disabled={isLoading}
+              data-testid="create-button"
             >
               {isLoading ? 'Creando...' : 'Iniciar Campaña'}
             </button>

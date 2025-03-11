@@ -1,7 +1,7 @@
 import React from 'react'
 import { MatchDetails } from '../../../types'
-import { LoadingButton } from '../MatchesLobby/UIComponents'
 import { Sword } from 'lucide-react'
+import { LoadingButton } from '../Lobby/ActionButtons'
 
 interface BackButtonProps {
   onClick: () => void
