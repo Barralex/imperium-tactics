@@ -1,4 +1,3 @@
-// src/stores/matches/matchesStore.ts
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 import { Match } from '@/types'
@@ -27,7 +26,7 @@ interface MatchesState {
 export const useMatchesStore = create<MatchesState>()(
   immer((set, get) => ({
     matches: [],
-    loading: false,
+    loading: true,
     error: null,
     joiningMatchId: null,
     creatingMatch: false,

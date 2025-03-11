@@ -1,7 +1,6 @@
 import React from 'react'
-import { MatchDetails } from '../../../types'
-import { Sword } from 'lucide-react'
-import { LoadingButton } from '../Lobby/ActionButtons'
+import { MatchDetails } from '../../../../types'
+import { LoadingButton } from '../../Lobby/ActionButtons'
 
 interface BackButtonProps {
   onClick: () => void
@@ -195,8 +194,7 @@ export const BattleCommands: React.FC<BattleCommandsProps> = ({
                 onClick={onStartBattle}
                 isLoading={loading}
                 className="bg-amber-600 hover:bg-amber-500 text-black w-full px-4 py-3 rounded-md font-bold transition"
-                loadingText="Iniciando batalla..."
-                icon={<Sword className="w-5 h-5" />}
+                loadingText=""
               >
                 Comenzar Batalla
               </LoadingButton>

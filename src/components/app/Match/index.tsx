@@ -8,7 +8,7 @@ import {
   PlayersList,
   BattleCommands,
   BattleArea,
-} from './BattleComponents'
+} from './UI/BattleComponents'
 import { useGameplayStore } from '@/stores'
 import LoadingScreen from './UI/LoadingScreen'
 import UnitSelection from './Modals/UnitSelection'
