@@ -128,6 +128,7 @@ export const GET_MATCH_SUBSCRIPTION = gql`
       status
       match_title
       total_units
+      turn
       player {
         id
         email

@@ -1,6 +1,7 @@
 import React from 'react'
 import { MatchDetails } from '../../../../types'
 import { LoadingButton } from '../../Lobby/ActionButtons'
+import { Sword } from 'lucide-react'
 
 interface BackButtonProps {
   onClick: () => void
@@ -159,6 +160,8 @@ export const PlayersList: React.FC<PlayersListProps> = ({
   </div>
 )
 
+// src/components/app/Match/BattleComponents.tsx
+// Actualiza la interfaz BattleCommandsProps
 interface BattleCommandsProps {
   status: string | undefined
   hasOpponent: boolean
@@ -166,10 +169,12 @@ interface BattleCommandsProps {
   onStartBattle: () => void
   onPhaseChange: () => void
   onDeployUnit: () => void
-  onEndTurn?: () => void
+  onEndTurn: () => void // Añade esta prop
   isHost: boolean
   loading: boolean
   hasDeployedUnits: boolean
+  isMyTurn: boolean // Añade esta prop
+  currentTurn?: number // Añade esta prop opcional
 }
 
 export const BattleCommands: React.FC<BattleCommandsProps> = ({
@@ -183,6 +188,8 @@ export const BattleCommands: React.FC<BattleCommandsProps> = ({
   isHost,
   loading,
   hasDeployedUnits,
+  isMyTurn,
+  currentTurn = 1,
 }) => {
   const renderCommandsByStatus = () => {
     switch (status) {
@@ -194,7 +201,8 @@ export const BattleCommands: React.FC<BattleCommandsProps> = ({
                 onClick={onStartBattle}
                 isLoading={loading}
                 className="bg-amber-600 hover:bg-amber-500 text-black w-full px-4 py-3 rounded-md font-bold transition"
-                loadingText=""
+                loadingText="Iniciando batalla..."
+                icon={<Sword className="w-5 h-5" />}
               >
                 Comenzar Batalla
               </LoadingButton>
@@ -277,17 +285,86 @@ export const BattleCommands: React.FC<BattleCommandsProps> = ({
         return (
           <div className="mt-6 space-y-3">
             <div className="bg-gray-800 p-3 rounded border border-gray-700">
-              <p className="text-amber-400 font-semibold">Turno: 1</p>
+              <p className="text-amber-400 font-semibold">
+                Turno: {currentTurn}
+              </p>
               <p className="text-amber-400 font-semibold mt-2">
                 Unidades: {totalUnits}
               </p>
+
+              {/* Indicador de turno actual */}
+              {isMyTurn ? (
+                <div className="mt-2 bg-green-800/40 border border-green-700 rounded-md p-2 text-center">
+                  <span className="text-green-400 font-semibold flex items-center justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 mr-1.5 animate-pulse"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    TU TURNO
+                  </span>
+                </div>
+              ) : (
+                <div className="mt-2 bg-red-900/30 border border-red-800 rounded-md p-2 text-center">
+                  <span className="text-red-400 font-semibold flex items-center justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 mr-1.5 animate-pulse"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    ESPERANDO RIVAL
+                  </span>
+                </div>
+              )}
             </div>
 
             <button
-              className="bg-amber-700 hover:bg-amber-600 text-amber-100 w-full px-4 py-2 rounded border border-amber-900"
+              className={`bg-amber-700 hover:bg-amber-600 text-amber-100 w-full px-4 py-2 rounded border border-amber-900 transition-all ${
+                !isMyTurn ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
+              }`}
               onClick={onEndTurn}
+              disabled={!isMyTurn}
             >
-              Terminar turno
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin h-5 w-5 mr-2"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Finalizando turno...
+                </span>
+              ) : (
+                'Terminar turno'
+              )}
             </button>
           </div>
         )
@@ -305,7 +382,7 @@ export const BattleCommands: React.FC<BattleCommandsProps> = ({
             </div>
             <button
               className="bg-amber-700 hover:bg-amber-600 text-amber-100 w-full px-4 py-2 rounded border border-amber-900"
-              onClick={() => window.location.reload()} // Simplemente recargar para volver al inicio
+              onClick={() => window.location.reload()}
             >
               Volver al Lobby
             </button>

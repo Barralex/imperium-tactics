@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
+import { useMutation } from '@apollo/client'
 
 import {
   BackButton,
@@ -13,12 +14,21 @@ import { useGameplayStore } from '@/stores'
 import LoadingScreen from './UI/LoadingScreen'
 import UnitSelection from './Modals/UnitSelection'
 import Board from './Board'
+import { UPDATE_MATCH } from '@/graphql/matches'
 
 const MatchPage: React.FC = () => {
   const { matchId } = useParams<{ matchId: string }>()
   const navigate = useNavigate()
   const { user } = useAuth0()
   const playerId = user?.['https://hasura.io/jwt/claims']?.['x-hasura-user-id']
+
+  // Añadir estado para seguir el ID del jugador con el turno actual
+  const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState<
+    string | undefined
+  >(undefined)
+
+  // Referencia a la mutación para actualizar el turno
+  const [updateMatchTurn] = useMutation(UPDATE_MATCH)
 
   const {
     matchDetails,
@@ -58,9 +68,24 @@ const MatchPage: React.FC = () => {
     unsubscribeFromPieces,
   ])
 
+  // Actualizar el estado local cuando cambia matchDetails
+  useEffect(() => {
+    if (matchDetails) {
+      // Si no hay un turno asignado y el estado es "in_progress", asignar al host
+      if (matchDetails.status === 'in_progress' && !matchDetails.turn) {
+        handleAssignFirstTurn()
+      } else if (matchDetails.turn) {
+        setCurrentTurnPlayerId(matchDetails.turn)
+      }
+    }
+  }, [matchDetails])
+
   // Verificar si el jugador actual ha desplegado unidades
   const playerPieces = pieces.filter((piece) => piece.player_id === playerId)
   const hasDeployedUnits = playerPieces.length > 0
+
+  // Verificar si el jugador es el host
+  const isHost = matchDetails?.player?.id === playerId
 
   const handleLeaveMatch = async () => {
     if (matchId) {
@@ -82,6 +107,46 @@ const MatchPage: React.FC = () => {
   const handleUpdateBattle = () => {
     if (matchId) {
       updateBattlePhase(matchId, 'in_progress')
+    }
+  }
+
+  // Asignar el primer turno al host cuando la partida comienza
+  const handleAssignFirstTurn = async () => {
+    if (matchId && matchDetails?.player?.id && isHost) {
+      try {
+        await updateMatchTurn({
+          variables: {
+            matchId,
+            set: { turn: matchDetails.player.id },
+          },
+        })
+      } catch (error) {
+        console.error('Error al asignar el primer turno:', error)
+      }
+    }
+  }
+
+  // Función para finalizar el turno y pasarlo al otro jugador
+  const handleEndTurn = async () => {
+    if (!matchId || !matchDetails) return
+
+    try {
+      // Determinar quién es el siguiente jugador
+      const nextPlayerId =
+        matchDetails.player?.id === currentTurnPlayerId
+          ? matchDetails.playerByPlayer2Id?.id
+          : matchDetails.player?.id
+
+      if (nextPlayerId) {
+        await updateMatchTurn({
+          variables: {
+            matchId,
+            set: { turn: nextPlayerId },
+          },
+        })
+      }
+    } catch (error) {
+      console.error('Error al cambiar de turno:', error)
     }
   }
 
@@ -126,9 +191,12 @@ const MatchPage: React.FC = () => {
             onStartBattle={handleStartBattle}
             onPhaseChange={handleUpdateBattle}
             onDeployUnit={openDeploymentModal}
-            isHost={matchDetails?.player?.id === playerId}
+            onEndTurn={handleEndTurn}
+            isHost={isHost}
             loading={isStartingBattle}
             hasDeployedUnits={hasDeployedUnits}
+            isMyTurn={playerId === currentTurnPlayerId}
+            currentTurn={1}
           />
         </div>
 
@@ -141,7 +209,10 @@ const MatchPage: React.FC = () => {
               matchDetails?.status === 'finished'
             }
           >
-            <Board />
+            <Board
+              currentPlayerId={playerId}
+              activeTurnPlayerId={currentTurnPlayerId}
+            />
           </BattleArea>
         </div>
       </div>

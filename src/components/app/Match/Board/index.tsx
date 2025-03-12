@@ -1,3 +1,4 @@
+// src/components/app/Match/Board/index.tsx
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useSubscription, useMutation } from '@apollo/client'
@@ -6,11 +7,23 @@ import { Piece } from '@/types'
 import Cell from './Cell'
 import DraggablePiece from './DraggablePiece'
 
-const Board: React.FC = () => {
+interface BoardProps {
+  currentPlayerId?: string
+  activeTurnPlayerId?: string
+}
+
+const Board: React.FC<BoardProps> = ({
+  currentPlayerId,
+  activeTurnPlayerId,
+}) => {
   const { matchId } = useParams<{ matchId: string }>()
   const size = 20
   const [pieceMap, setPieceMap] = useState<Record<string, Piece>>({})
   const [selectedPiece, setSelectedPiece] = useState<Piece | null>(null)
+
+  // Determinar si es el turno del jugador actual
+  const isPlayerTurn =
+    currentPlayerId === activeTurnPlayerId || !activeTurnPlayerId
 
   // Suscripción a las piezas
   const { data, loading, error } = useSubscription(PIECES_SUBSCRIPTION, {
@@ -38,6 +51,9 @@ const Board: React.FC = () => {
     newX: number,
     newY: number
   ) => {
+    // Si no es el turno del jugador, no permitir movimientos
+    if (!isPlayerTurn) return
+
     try {
       await updatePiecePosition({
         variables: { id: pieceId, pos_x: newX, pos_y: newY },
@@ -49,7 +65,10 @@ const Board: React.FC = () => {
   }
 
   const handleSelectPiece = (piece: Piece) => {
-    setSelectedPiece(piece)
+    // Solo permitir seleccionar piezas propias en tu turno
+    if (piece.player_id === currentPlayerId && isPlayerTurn) {
+      setSelectedPiece(piece)
+    }
   }
 
   const handleClearSelection = () => {
@@ -109,6 +128,7 @@ const Board: React.FC = () => {
               piece={piece}
               renderPiece={renderPiece}
               onSelect={handleSelectPiece}
+              isActive={isPlayerTurn && piece.player_id === currentPlayerId}
             />
           )}
         </Cell>
@@ -117,7 +137,7 @@ const Board: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className="relative">
       <div className="inline-block border-2 border-gray-700 bg-black/80 p-2 rounded shadow-lg relative">
         {loading && (
           <div className="absolute inset-0 bg-black/70 flex items-center justify-center text-amber-500 z-10">
@@ -167,6 +187,15 @@ const Board: React.FC = () => {
           </div>
         )}
         <div className="grid grid-cols-20 gap-0">{cells}</div>
+
+        {/* Overlay cuando no es tu turno */}
+        {!isPlayerTurn && !loading && !error && (
+          <div className="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none z-10">
+            <div className="bg-black/70 text-amber-500 font-bold px-6 py-3 rounded-md border border-amber-800 shadow-lg">
+              ESPERANDO MOVIMIENTO DEL RIVAL
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Panel con las estadísticas de la ficha seleccionada */}
@@ -179,7 +208,6 @@ const Board: React.FC = () => {
           <p className="text-white">HP: {selectedPiece.hp}</p>
           <p className="text-white">Rango: {selectedPiece.range}</p>
           <p className="text-white">Movimiento: {selectedPiece.movement}</p>
-          {/* Aquí podrías usar imágenes o íconos para emular el estilo de 40K */}
         </div>
       )}
     </div>
