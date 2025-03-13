@@ -1,4 +1,5 @@
 // src/components/app/Match/Board/DraggablePiece.tsx
+import { useGameplayStore } from '@/stores'
 import { Piece } from '@/types'
 import React, { useRef, useEffect } from 'react'
 import { useDrag } from 'react-dnd'
@@ -17,22 +18,27 @@ const DraggablePiece: React.FC<DraggablePieceProps> = ({
   renderPiece,
   onSelect,
   isActive = true, // Por defecto activa para compatibilidad con el código existente
-  gameStatus
+  gameStatus,
 }) => {
+  const menuSelectedPieceId = useGameplayStore(
+    (state) => state.menuSelectedPieceId
+  )
+  const isSelectedInMenu = piece.id === menuSelectedPieceId
+
   const [{ isDragging }, drag] = useDrag({
     type: 'piece',
     item: { id: piece.id, type: piece.type },
     canDrag: () => {
       // Piezas muertas no se pueden arrastrar
       if (piece.is_alive === false || piece.hp <= 0) {
-        return false;
+        return false
       }
-      return isActive && gameStatus !== 'deployment';
+      return isActive && gameStatus !== 'deployment'
     },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
-  });
+  })
 
   const divRef = useRef<HTMLDivElement>(null)
 
@@ -61,6 +67,11 @@ const DraggablePiece: React.FC<DraggablePieceProps> = ({
       className={`${!isActive ? 'grayscale' : ''} transition-all duration-300`}
     >
       {renderPiece(piece)}
+
+      {/* Añadir un resaltado adicional si está seleccionada en el menú */}
+      {isSelectedInMenu && (
+        <div className="absolute inset-0 border-4 border-yellow-500 rounded-full animate-pulse opacity-70"></div>
+      )}
 
       {/* Indicador visual de pieza inactiva o muerta */}
       {(!isActive || piece.is_alive === false) && (

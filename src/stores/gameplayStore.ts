@@ -10,6 +10,7 @@ type Subscription = {
 }
 
 interface GameplayState {
+  menuSelectedPieceId: string | null
   matchDetails: MatchDetails | null
   pieces: Piece[]
   loading: boolean
@@ -57,6 +58,7 @@ interface GameplayState {
   canAttack: (attacker: Piece, target: Piece) => boolean
   performAttack: () => Promise<void>
   clearAttackResult: () => void
+  setMenuSelectedPieceId: (pieceId: string | null) => void
 }
 
 export const useGameplayStore = create<GameplayState>()(
@@ -66,6 +68,7 @@ export const useGameplayStore = create<GameplayState>()(
     let piecesSubscription: Subscription | null = null
 
     return {
+      menuSelectedPieceId: null,
       matchDetails: null,
       pieces: [],
       loading: true,
@@ -119,6 +122,12 @@ export const useGameplayStore = create<GameplayState>()(
             })
           }
         )
+      },
+
+      setMenuSelectedPieceId: (pieceId) => {
+        set((state) => {
+          state.menuSelectedPieceId = pieceId;
+        });
       },
 
       unsubscribeFromMatch: () => {

@@ -20,18 +20,18 @@ const AttackControls: React.FC<AttackControlsProps> = ({
     performAttack,
     clearAttackResult,
     pieces,
+    setMenuSelectedPieceId,
   } = useGameplayStore()
 
   // Obtener piezas vivas del jugador actual
   const playerPieces = pieces.filter(
     (p) => p.player_id === currentPlayerId && p.is_alive !== false && p.hp > 0
-  );
-  
+  )
 
   // Obtener piezas vivas del enemigo
   const enemyPieces = pieces.filter(
     (p) => p.player_id !== currentPlayerId && p.is_alive !== false && p.hp > 0
-  );
+  )
 
   const handleAttackClick = () => {
     performAttack()
@@ -78,13 +78,14 @@ const AttackControls: React.FC<AttackControlsProps> = ({
             onChange={(e) => {
               const piece = playerPieces.find((p) => p.id === e.target.value)
               setAttackingPiece(piece || null)
+              setMenuSelectedPieceId(e.target.value)
             }}
           >
             <option value="">Selecciona una unidad</option>
-            {playerPieces.map((piece) => (
+            {playerPieces.map((piece, index) => (
               <option key={piece.id} value={piece.id}>
-                {piece.type.toUpperCase()} - HP: {piece.hp} - Rango:{' '}
-                {piece.range}
+                {piece.type.toUpperCase()} #{index + 1} - Pos({piece.pos_x},
+                {piece.pos_y}) - HP: {piece.hp}
               </option>
             ))}
           </select>
@@ -102,7 +103,7 @@ const AttackControls: React.FC<AttackControlsProps> = ({
             disabled={!attackingPiece}
           >
             <option value="">Selecciona un objetivo</option>
-            {enemyPieces.map((piece) => {
+            {enemyPieces.map((piece, index) => {
               const canBeAttacked = attackingPiece
                 ? useGameplayStore.getState().canAttack(attackingPiece, piece)
                 : false
@@ -113,8 +114,9 @@ const AttackControls: React.FC<AttackControlsProps> = ({
                   value={piece.id}
                   disabled={!canBeAttacked}
                 >
-                  {piece.type.toUpperCase()} - HP: {piece.hp}{' '}
-                  {!canBeAttacked ? '(Fuera de rango)' : ''}
+                  {piece.type.toUpperCase()} #{index + 1} - Pos({piece.pos_x},
+                  {piece.pos_y}) - HP: {piece.hp}
+                  {!canBeAttacked ? ' (Fuera de rango)' : ''}
                 </option>
               )
             })}

@@ -6,22 +6,27 @@ import { PIECES_SUBSCRIPTION, update_pieces_by_pk } from '@/graphql/matches'
 import { MatchDetails, Piece } from '@/types'
 import Cell from './Cell'
 import DraggablePiece from './DraggablePiece'
+import AttackLine from './AttackLine' // Vamos a crear este componente
+import { useGameplayStore } from '@/stores' // Añadir esta importación
 
 interface BoardProps {
   currentPlayerId?: string
   activeTurnPlayerId?: string
-  matchDetails?: MatchDetails | null;
+  matchDetails?: MatchDetails | null
 }
 
 const Board: React.FC<BoardProps> = ({
   currentPlayerId,
   activeTurnPlayerId,
-  matchDetails
+  matchDetails,
 }) => {
   const { matchId } = useParams<{ matchId: string }>()
   const size = 20
   const [pieceMap, setPieceMap] = useState<Record<string, Piece>>({})
   const [selectedPiece, setSelectedPiece] = useState<Piece | null>(null)
+
+  // Obtener las piezas seleccionadas del store
+  const { attackingPiece, targetedPiece } = useGameplayStore()
 
   // Determinar si es el turno del jugador actual
   const isPlayerTurn =
@@ -54,26 +59,26 @@ const Board: React.FC<BoardProps> = ({
     newY: number
   ) => {
     // Obtener el estado actual de la partida desde matchDetails
-    const currentStatus = matchDetails?.status;
-    
+    const currentStatus = matchDetails?.status
+
     // Si no es el turno del jugador, no permitir movimientos
-    if (!isPlayerTurn) return;
-    
+    if (!isPlayerTurn) return
+
     // No permitir movimientos durante la fase de despliegue
     if (currentStatus === 'deployment') {
-      console.log('No se pueden mover las piezas durante la fase de despliegue');
-      return;
+      console.log('No se pueden mover las piezas durante la fase de despliegue')
+      return
     }
-  
+
     try {
       await updatePiecePosition({
         variables: { id: pieceId, pos_x: newX, pos_y: newY },
-      });
-      console.log('Posición actualizada');
+      })
+      console.log('Posición actualizada')
     } catch (err) {
-      console.error('Error al actualizar la posición de la pieza:', err);
+      console.error('Error al actualizar la posición de la pieza:', err)
     }
-  };
+  }
   const handleSelectPiece = (piece: Piece) => {
     // Solo permitir seleccionar piezas propias en tu turno
     if (piece.player_id === currentPlayerId && isPlayerTurn) {
@@ -86,23 +91,23 @@ const Board: React.FC<BoardProps> = ({
   }
 
   const renderPiece = (piece: Piece) => {
-    let bgColor, borderColor, icon;
-    const isDead = piece.is_alive === false || piece.hp <= 0;
-  
+    let bgColor, borderColor, icon
+    const isDead = piece.is_alive === false || piece.hp <= 0
+
     if (piece.type === 'melee') {
-      bgColor = isDead ? 'bg-gray-800' : 'bg-red-900';
-      borderColor = isDead ? 'border-gray-700' : 'border-red-700';
-      icon = '✖';
+      bgColor = isDead ? 'bg-gray-800' : 'bg-red-900'
+      borderColor = isDead ? 'border-gray-700' : 'border-red-700'
+      icon = '✖'
     } else if (piece.type === 'ranged') {
-      bgColor = isDead ? 'bg-gray-800' : 'bg-blue-900';
-      borderColor = isDead ? 'border-gray-700' : 'border-blue-700';
-      icon = '◎';
+      bgColor = isDead ? 'bg-gray-800' : 'bg-blue-900'
+      borderColor = isDead ? 'border-gray-700' : 'border-blue-700'
+      icon = '◎'
     } else if (piece.type === 'normal') {
-      bgColor = isDead ? 'bg-gray-800' : 'bg-amber-800';
-      borderColor = isDead ? 'border-gray-700' : 'border-amber-600';
-      icon = '⋯';
+      bgColor = isDead ? 'bg-gray-800' : 'bg-amber-800'
+      borderColor = isDead ? 'border-gray-700' : 'border-amber-600'
+      icon = '⋯'
     }
-  
+
     return (
       <div
         className={`absolute inset-0.5 ${bgColor} rounded-full flex items-center justify-center text-white font-bold border-2 ${borderColor} shadow-inner overflow-hidden ${
@@ -127,8 +132,8 @@ const Board: React.FC<BoardProps> = ({
           </div>
         )}
       </div>
-    );
-  };
+    )
+  }
 
   // Función para buscar una ficha por su id (recorre el pieceMap)
   const getPieceById = (id: string): Piece | undefined => {
@@ -216,6 +221,17 @@ const Board: React.FC<BoardProps> = ({
           </div>
         )}
         <div className="grid grid-cols-20 gap-0">{cells}</div>
+
+        {/* Añadir la línea de ataque cuando hay piezas seleccionadas */}
+        {attackingPiece && targetedPiece && (
+          <AttackLine
+            attacker={attackingPiece}
+            target={targetedPiece}
+            canAttack={useGameplayStore
+              .getState()
+              .canAttack(attackingPiece, targetedPiece)}
+          />
+        )}
 
         {/* Overlay cuando no es tu turno */}
         {!isPlayerTurn && !loading && !error && (
