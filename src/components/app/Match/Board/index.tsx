@@ -3,18 +3,20 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useSubscription, useMutation } from '@apollo/client'
 import { PIECES_SUBSCRIPTION, update_pieces_by_pk } from '@/graphql/matches'
-import { Piece } from '@/types'
+import { MatchDetails, Piece } from '@/types'
 import Cell from './Cell'
 import DraggablePiece from './DraggablePiece'
 
 interface BoardProps {
   currentPlayerId?: string
   activeTurnPlayerId?: string
+  matchDetails?: MatchDetails | null;
 }
 
 const Board: React.FC<BoardProps> = ({
   currentPlayerId,
   activeTurnPlayerId,
+  matchDetails
 }) => {
   const { matchId } = useParams<{ matchId: string }>()
   const size = 20
@@ -51,19 +53,27 @@ const Board: React.FC<BoardProps> = ({
     newX: number,
     newY: number
   ) => {
+    // Obtener el estado actual de la partida desde matchDetails
+    const currentStatus = matchDetails?.status;
+    
     // Si no es el turno del jugador, no permitir movimientos
-    if (!isPlayerTurn) return
-
+    if (!isPlayerTurn) return;
+    
+    // No permitir movimientos durante la fase de despliegue
+    if (currentStatus === 'deployment') {
+      console.log('No se pueden mover las piezas durante la fase de despliegue');
+      return;
+    }
+  
     try {
       await updatePiecePosition({
         variables: { id: pieceId, pos_x: newX, pos_y: newY },
-      })
-      console.log('Posición actualizada')
+      });
+      console.log('Posición actualizada');
     } catch (err) {
-      console.error('Error al actualizar la posición de la pieza:', err)
+      console.error('Error al actualizar la posición de la pieza:', err);
     }
-  }
-
+  };
   const handleSelectPiece = (piece: Piece) => {
     // Solo permitir seleccionar piezas propias en tu turno
     if (piece.player_id === currentPlayerId && isPlayerTurn) {
@@ -143,6 +153,7 @@ const Board: React.FC<BoardProps> = ({
               renderPiece={renderPiece}
               onSelect={handleSelectPiece}
               isActive={isPlayerTurn && piece.player_id === currentPlayerId}
+              gameStatus={matchDetails?.status || 'waiting'}
             />
           )}
         </Cell>

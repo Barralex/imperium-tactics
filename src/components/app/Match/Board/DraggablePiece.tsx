@@ -9,6 +9,7 @@ interface DraggablePieceProps {
   renderPiece: (piece: Piece) => JSX.Element
   onSelect: (piece: Piece) => void
   isActive?: boolean // Nueva prop para determinar si la pieza está activa (es tu turno)
+  gameStatus: string
 }
 
 const DraggablePiece: React.FC<DraggablePieceProps> = ({
@@ -16,15 +17,19 @@ const DraggablePiece: React.FC<DraggablePieceProps> = ({
   renderPiece,
   onSelect,
   isActive = true, // Por defecto activa para compatibilidad con el código existente
+  gameStatus
 }) => {
   const [{ isDragging }, drag] = useDrag({
     type: 'piece',
     item: { id: piece.id, type: piece.type },
-    canDrag: () => isActive && piece.is_alive !== false, // No permitir arrastrar piezas muertas
+    canDrag: () => {
+  
+      return isActive && piece.is_alive !== false && gameStatus !== 'deployment';
+    },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
-  })
+  });
 
   const divRef = useRef<HTMLDivElement>(null)
 

@@ -221,6 +221,7 @@ const MatchPage: React.FC = () => {
             <Board
               currentPlayerId={playerId}
               activeTurnPlayerId={currentTurnPlayerId}
+              matchDetails={matchDetails}
             />
           </BattleArea>
         </div>
