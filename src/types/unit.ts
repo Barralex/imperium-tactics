@@ -126,7 +126,6 @@ export function generateDeployPositions(
 
       if (y <= endY) {
         piecesToInsert.push({
-          id: `${playerId}-${matchId}-${x}-${y}`,
           hp: stats.hp,
           player_id: playerId,
           match_id: matchId,
@@ -134,7 +133,6 @@ export function generateDeployPositions(
           pos_y: y,
           range: stats.range,
           movement: stats.movement,
-          damage: stats.damage,
           type: type,
         })
       }

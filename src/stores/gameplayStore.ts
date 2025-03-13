@@ -343,7 +343,11 @@ export const useGameplayStore = create<GameplayState>()(
           const damage = piecesService.calculateDamage(attackingPiece)
 
           // Realizar el ataque
-          await piecesService.attackPiece(targetedPiece.id, damage)
+          if (targetedPiece.id) {
+            await piecesService.attackPiece(targetedPiece.id, damage)
+          } else {
+            throw new Error('Targeted piece ID is undefined')
+          }
 
           set((state) => {
             state.attackResult = {
