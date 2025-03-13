@@ -15,6 +15,7 @@ import LoadingScreen from './UI/LoadingScreen'
 import UnitSelection from './Modals/UnitSelection'
 import Board from './Board'
 import { UPDATE_MATCH } from '@/graphql/matches'
+import AttackControls from './CombatSystem/AttackControls'
 
 const MatchPage: React.FC = () => {
   const { matchId } = useParams<{ matchId: string }>()
@@ -198,6 +199,14 @@ const MatchPage: React.FC = () => {
             isMyTurn={playerId === currentTurnPlayerId}
             currentTurn={1}
           />
+
+          {/* Añadir los controles de ataque si estamos en fase de combate */}
+          {matchDetails?.status === 'in_progress' && (
+            <AttackControls
+              currentPlayerId={playerId}
+              isPlayerTurn={playerId === currentTurnPlayerId}
+            />
+          )}
         </div>
 
         <div className="lg:w-2/3">

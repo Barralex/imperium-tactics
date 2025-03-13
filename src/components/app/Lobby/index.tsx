@@ -17,9 +17,9 @@ const Lobby: React.FC = () => {
   const { user, isAuthenticated } = useAuth0()
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = React.useState(false)
-  
+
   // Extraer ID del jugador de los claims de Auth0
-  const currentPlayerId = 
+  const currentPlayerId =
     user?.['https://hasura.io/jwt/claims']?.['x-hasura-user-id']
 
   // Obtener estado y acciones del store
@@ -92,7 +92,7 @@ const Lobby: React.FC = () => {
 
     // Si no es el creador y la partida no tiene un segundo jugador, unirse
     if (!match.player2_id) {
-      joinMatch(match.id, currentPlayerId).then(success => {
+      joinMatch(match.id, currentPlayerId).then((success) => {
         if (success) {
           navigate(`/match/${match.id}`)
         }
@@ -120,11 +120,11 @@ const Lobby: React.FC = () => {
 
         <div className="flex space-x-3">
           <RefreshButton onClick={fetchMatches} isLoading={loading} />
-          
+
           {isAuthenticated && (
-            <CreateButton 
-              onClick={() => setIsModalOpen(true)} 
-              isLoading={creatingMatch} 
+            <CreateButton
+              onClick={() => setIsModalOpen(true)}
+              isLoading={creatingMatch}
             />
           )}
         </div>

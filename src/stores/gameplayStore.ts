@@ -23,6 +23,13 @@ interface GameplayState {
     error: string | null
     hasDeployed: boolean
   }
+  attackingPiece: Piece | null
+  targetedPiece: Piece | null
+  attackResult: {
+    success: boolean
+    message: string
+    damage: number | null
+  } | null
 
   // Acciones
   subscribeToMatch: (matchId: string) => void
@@ -43,6 +50,13 @@ interface GameplayState {
   openDeploymentModal: () => void
   closeDeploymentModal: () => void
   resetError: () => void
+
+  // Nuevas acciones para el sistema de combate
+  setAttackingPiece: (piece: Piece | null) => void
+  setTargetedPiece: (piece: Piece | null) => void
+  canAttack: (attacker: Piece, target: Piece) => boolean
+  performAttack: () => Promise<void>
+  clearAttackResult: () => void
 }
 
 export const useGameplayStore = create<GameplayState>()(
@@ -65,6 +79,9 @@ export const useGameplayStore = create<GameplayState>()(
         error: null,
         hasDeployed: false,
       },
+      attackingPiece: null,
+      targetedPiece: null,
+      attackResult: null,
 
       // Suscripciones
       subscribeToMatch: (matchId) => {
@@ -271,6 +288,87 @@ export const useGameplayStore = create<GameplayState>()(
         set((state) => {
           state.error = null
           state.unitDeploymentProgress.error = null
+        })
+      },
+
+      // Nuevas acciones para el sistema de combate
+      setAttackingPiece: (piece) => {
+        set((state) => {
+          state.attackingPiece = piece
+          // Si deseleccionamos la pieza atacante, también limpiamos el objetivo
+          if (!piece) {
+            state.targetedPiece = null
+          }
+        })
+      },
+
+      setTargetedPiece: (piece) => {
+        set((state) => {
+          state.targetedPiece = piece
+        })
+      },
+
+      canAttack: (attacker, target) => {
+        return piecesService.canAttack(attacker, target)
+      },
+
+      performAttack: async () => {
+        const { attackingPiece, targetedPiece } = get()
+
+        if (!attackingPiece || !targetedPiece) {
+          set((state) => {
+            state.attackResult = {
+              success: false,
+              message: 'Selecciona una pieza atacante y un objetivo',
+              damage: null,
+            }
+          })
+          return
+        }
+
+        // Verificar si puede atacar al objetivo
+        if (!piecesService.canAttack(attackingPiece, targetedPiece)) {
+          set((state) => {
+            state.attackResult = {
+              success: false,
+              message: 'El objetivo está fuera de rango',
+              damage: null,
+            }
+          })
+          return
+        }
+
+        try {
+          // Calcular el daño
+          const damage = piecesService.calculateDamage(attackingPiece)
+
+          // Realizar el ataque
+          await piecesService.attackPiece(targetedPiece.id, damage)
+
+          set((state) => {
+            state.attackResult = {
+              success: true,
+              message: `Ataque exitoso! Se causaron ${damage} puntos de daño`,
+              damage: damage,
+            }
+            // Limpiar las selecciones después del ataque
+            state.attackingPiece = null
+            state.targetedPiece = null
+          })
+        } catch (error) {
+          set((state) => {
+            state.attackResult = {
+              success: false,
+              message: error instanceof Error ? error.message : String(error),
+              damage: null,
+            }
+          })
+        }
+      },
+
+      clearAttackResult: () => {
+        set((state) => {
+          state.attackResult = null
         })
       },
     }

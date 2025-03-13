@@ -45,7 +45,8 @@ const MatchCard: React.FC<MatchCardProps> = ({
 
   const getButtonClass = () => {
     if (isJoining) return 'bg-amber-700 text-amber-100 cursor-wait'
-    if (isPlayer1 || isPlayer2) return 'bg-amber-600 hover:bg-amber-500 text-black'
+    if (isPlayer1 || isPlayer2)
+      return 'bg-amber-600 hover:bg-amber-500 text-black'
     if (canJoin) return 'bg-green-700 hover:bg-green-600 text-white'
     return 'bg-gray-700 text-gray-300 cursor-not-allowed'
   }
@@ -53,8 +54,8 @@ const MatchCard: React.FC<MatchCardProps> = ({
   return (
     <div
       className={cn(
-        "war-zone-card bg-black/40 border border-amber-900/40 rounded-md transition-all duration-200 overflow-hidden",
-        (isPlayer1 || isPlayer2) && "border-l-4 border-amber-500"
+        'war-zone-card bg-black/40 border border-amber-900/40 rounded-md transition-all duration-200 overflow-hidden',
+        (isPlayer1 || isPlayer2) && 'border-l-4 border-amber-500'
       )}
     >
       <div className="p-3 flex flex-col h-full">
@@ -92,10 +93,12 @@ const MatchCard: React.FC<MatchCardProps> = ({
             <p className="flex items-center">
               <span className="w-3 h-3 rounded-full mr-1.5 inline-block bg-amber-700"></span>
               <span className="text-gray-400">Jugadores: </span>
-              <span className={cn(
-                "ml-1", 
-                isFullMatch ? "text-green-500" : "text-amber-400"
-              )}>
+              <span
+                className={cn(
+                  'ml-1',
+                  isFullMatch ? 'text-green-500' : 'text-amber-400'
+                )}
+              >
                 {isFullMatch ? '2/2' : '1/2'}
               </span>
             </p>
@@ -105,13 +108,13 @@ const MatchCard: React.FC<MatchCardProps> = ({
         <div className="flex justify-end mt-3 space-x-2">
           {isPlayer1 && (
             <Button
-            onClick={() => onDeleteMatch(match.id)}
-            disabled={isDeleting}
-            className="px-2 py-1 bg-red-900 hover:bg-red-800 text-white rounded-sm text-xs flex items-center gap-1"
-            title="Eliminar"
-            isLoading={isDeleting}
-            loadingText="Eliminando..."
-            icon={<Trash2 width={14} height={14} />}
+              onClick={() => onDeleteMatch(match.id)}
+              disabled={isDeleting}
+              className="px-2 py-1 bg-red-900 hover:bg-red-800 text-white rounded-sm text-xs flex items-center gap-1"
+              title="Eliminar"
+              isLoading={isDeleting}
+              loadingText="Eliminando..."
+              icon={<Trash2 width={14} height={14} />}
             >
               Eliminar
             </Button>
@@ -119,9 +122,13 @@ const MatchCard: React.FC<MatchCardProps> = ({
 
           <button
             onClick={() => onEnterMatch(match)}
-            disabled={isJoining || joiningMatch || (!isPlayer1 && !isPlayer2 && isFullMatch)}
+            disabled={
+              isJoining ||
+              joiningMatch ||
+              (!isPlayer1 && !isPlayer2 && isFullMatch)
+            }
             className={cn(
-              "px-3 py-1 rounded-sm text-sm font-bold imperial-button",
+              'px-3 py-1 rounded-sm text-sm font-bold imperial-button',
               getButtonClass()
             )}
           >

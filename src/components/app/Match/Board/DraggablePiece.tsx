@@ -20,7 +20,7 @@ const DraggablePiece: React.FC<DraggablePieceProps> = ({
   const [{ isDragging }, drag] = useDrag({
     type: 'piece',
     item: { id: piece.id, type: piece.type },
-    canDrag: () => isActive, // Solo permitir arrastrar si la pieza está activa
+    canDrag: () => isActive && piece.is_alive !== false, // No permitir arrastrar piezas muertas
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -45,7 +45,7 @@ const DraggablePiece: React.FC<DraggablePieceProps> = ({
       }}
       onClick={(e) => {
         e.stopPropagation()
-        if (isActive) {
+        if (isActive && piece.is_alive !== false) {
           // Solo seleccionar si está activa
           onSelect(piece)
         }
@@ -54,8 +54,8 @@ const DraggablePiece: React.FC<DraggablePieceProps> = ({
     >
       {renderPiece(piece)}
 
-      {/* Indicador visual de pieza inactiva */}
-      {!isActive && (
+      {/* Indicador visual de pieza inactiva o muerta */}
+      {(!isActive || piece.is_alive === false) && (
         <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"

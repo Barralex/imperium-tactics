@@ -63,5 +63,6 @@ export type Piece = {
   range: number
   movement?: number
   player_id?: string
+  is_alive?: boolean
   match_id?: string
 }

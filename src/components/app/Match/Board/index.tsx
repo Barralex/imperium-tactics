@@ -77,27 +77,41 @@ const Board: React.FC<BoardProps> = ({
 
   const renderPiece = (piece: Piece) => {
     let bgColor, borderColor, icon
+    const isDead = piece.is_alive === false
 
     if (piece.type === 'melee') {
-      bgColor = 'bg-red-900'
-      borderColor = 'border-red-700'
+      bgColor = isDead ? 'bg-gray-800' : 'bg-red-900'
+      borderColor = isDead ? 'border-gray-700' : 'border-red-700'
       icon = '✖'
     } else if (piece.type === 'ranged') {
-      bgColor = 'bg-blue-900'
-      borderColor = 'border-blue-700'
+      bgColor = isDead ? 'bg-gray-800' : 'bg-blue-900'
+      borderColor = isDead ? 'border-gray-700' : 'border-blue-700'
       icon = '◎'
     } else if (piece.type === 'normal') {
-      bgColor = 'bg-amber-800'
-      borderColor = 'border-amber-600'
+      bgColor = isDead ? 'bg-gray-800' : 'bg-amber-800'
+      borderColor = isDead ? 'border-gray-700' : 'border-amber-600'
       icon = '⋯'
     }
 
     return (
       <div
-        className={`absolute inset-0.5 ${bgColor} rounded-full flex items-center justify-center text-white font-bold border-2 ${borderColor} shadow-inner overflow-hidden`}
-        title={`${piece.type.toUpperCase()} | HP: ${piece.hp} | Rango: ${piece.range} | Mov: ${piece.movement}`}
+        className={`absolute inset-0.5 ${bgColor} rounded-full flex items-center justify-center text-white font-bold border-2 ${borderColor} shadow-inner overflow-hidden ${isDead ? 'opacity-50' : ''}`}
+        title={`${piece.type.toUpperCase()} | HP: ${piece.hp} | Rango: ${piece.range} | Mov: ${piece.movement} ${isDead ? '| ELIMINADA' : ''}`}
       >
         <span className="text-xs">{icon}</span>
+        {isDead && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+            <svg
+              className="w-4 h-4 text-red-500"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </div>
+        )}
       </div>
     )
   }

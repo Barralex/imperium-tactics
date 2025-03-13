@@ -205,3 +205,32 @@ export const update_pieces_by_pk = gql`
     }
   }
 `
+
+export const ATTACK_PIECE = gql`
+  mutation AttackPiece($id: uuid!, $newHp: Int!) {
+    update_pieces_by_pk(pk_columns: { id: $id }, _set: { hp: $newHp }) {
+      id
+      hp
+      player_id
+    }
+  }
+`
+
+export const MARK_PIECE_AS_DEAD = gql`
+  mutation MarkPieceAsDead($id: uuid!) {
+    update_pieces_by_pk(pk_columns: { id: $id }, _set: { is_alive: false }) {
+      id
+      is_alive
+    }
+  }
+`
+
+export const GET_PIECES_BY_PK = gql`
+  query GetPieceByPk($id: uuid!) {
+    pieces_by_pk(id: $id) {
+      id
+      hp
+      player_id
+    }
+  }
+`
