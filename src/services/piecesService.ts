@@ -97,8 +97,8 @@ export const piecesService = {
             match_id: matchId,
             pos_x: x,
             pos_y: y,
-            range: 0,
-            movement: 2,
+            range: 1,
+            movement: 5,
             type: 'melee',
           })
         }
@@ -117,8 +117,8 @@ export const piecesService = {
             match_id: matchId,
             pos_x: x,
             pos_y: y,
-            range: 2,
-            movement: 1,
+            range: 5,
+            movement: 3,
             type: 'ranged',
           })
         }
@@ -137,8 +137,8 @@ export const piecesService = {
             match_id: matchId,
             pos_x: x,
             pos_y: y,
-            range: 1,
-            movement: 1,
+            range: 3,
+            movement: 3,
             type: 'normal',
           })
         }
