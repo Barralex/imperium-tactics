@@ -180,6 +180,7 @@ export const PIECES_SUBSCRIPTION = gql`
       range
       type
       movement
+      is_alive
     }
   }
 `

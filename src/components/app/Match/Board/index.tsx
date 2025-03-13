@@ -86,45 +86,49 @@ const Board: React.FC<BoardProps> = ({
   }
 
   const renderPiece = (piece: Piece) => {
-    let bgColor, borderColor, icon
-    const isDead = piece.is_alive === false
-
+    let bgColor, borderColor, icon;
+    const isDead = piece.is_alive === false || piece.hp <= 0;
+  
     if (piece.type === 'melee') {
-      bgColor = isDead ? 'bg-gray-800' : 'bg-red-900'
-      borderColor = isDead ? 'border-gray-700' : 'border-red-700'
-      icon = '✖'
+      bgColor = isDead ? 'bg-gray-800' : 'bg-red-900';
+      borderColor = isDead ? 'border-gray-700' : 'border-red-700';
+      icon = '✖';
     } else if (piece.type === 'ranged') {
-      bgColor = isDead ? 'bg-gray-800' : 'bg-blue-900'
-      borderColor = isDead ? 'border-gray-700' : 'border-blue-700'
-      icon = '◎'
+      bgColor = isDead ? 'bg-gray-800' : 'bg-blue-900';
+      borderColor = isDead ? 'border-gray-700' : 'border-blue-700';
+      icon = '◎';
     } else if (piece.type === 'normal') {
-      bgColor = isDead ? 'bg-gray-800' : 'bg-amber-800'
-      borderColor = isDead ? 'border-gray-700' : 'border-amber-600'
-      icon = '⋯'
+      bgColor = isDead ? 'bg-gray-800' : 'bg-amber-800';
+      borderColor = isDead ? 'border-gray-700' : 'border-amber-600';
+      icon = '⋯';
     }
-
+  
     return (
       <div
-        className={`absolute inset-0.5 ${bgColor} rounded-full flex items-center justify-center text-white font-bold border-2 ${borderColor} shadow-inner overflow-hidden ${isDead ? 'opacity-50' : ''}`}
-        title={`${piece.type.toUpperCase()} | HP: ${piece.hp} | Rango: ${piece.range} | Mov: ${piece.movement} ${isDead ? '| ELIMINADA' : ''}`}
+        className={`absolute inset-0.5 ${bgColor} rounded-full flex items-center justify-center text-white font-bold border-2 ${borderColor} shadow-inner overflow-hidden ${
+          isDead ? 'opacity-50' : ''
+        }`}
+        title={`${piece.type.toUpperCase()} | HP: ${piece.hp} | Rango: ${
+          piece.range
+        } | Mov: ${piece.movement} ${isDead ? '| ELIMINADA' : ''}`}
       >
         <span className="text-xs">{icon}</span>
         {isDead && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm">
             <svg
               className="w-4 h-4 text-red-500"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="3"
             >
-              <path d="M18 6L6 18M6 6l12 12" />
+              <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
             </svg>
           </div>
         )}
       </div>
-    )
-  }
+    );
+  };
 
   // Función para buscar una ficha por su id (recorre el pieceMap)
   const getPieceById = (id: string): Piece | undefined => {

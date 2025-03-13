@@ -23,8 +23,11 @@ const DraggablePiece: React.FC<DraggablePieceProps> = ({
     type: 'piece',
     item: { id: piece.id, type: piece.type },
     canDrag: () => {
-  
-      return isActive && piece.is_alive !== false && gameStatus !== 'deployment';
+      // Piezas muertas no se pueden arrastrar
+      if (piece.is_alive === false || piece.hp <= 0) {
+        return false;
+      }
+      return isActive && gameStatus !== 'deployment';
     },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),

@@ -139,16 +139,16 @@ export const piecesService = {
       }>({
         query: GET_PIECES_BY_PK,
         variables: { id: pieceId },
-      })
-
+      });
+  
       if (!pieceData || !pieceData.pieces_by_pk) {
-        throw new Error('Pieza no encontrada')
+        throw new Error('Pieza no encontrada');
       }
-
+  
       // Calcular el nuevo HP
-      const currentHp = pieceData.pieces_by_pk.hp
-      const newHp = Math.max(0, currentHp - damage)
-
+      const currentHp = pieceData.pieces_by_pk.hp;
+      const newHp = Math.max(0, currentHp - damage);
+  
       // Actualizar con el nuevo HP
       const { data, errors } = await graphqlService.mutate<{
         update_pieces_by_pk: { id: string; hp: number; player_id: string }
@@ -158,24 +158,29 @@ export const piecesService = {
           id: pieceId,
           newHp: newHp,
         },
-      })
-
-      if (errors) throw new Error('Error al atacar la pieza')
-
-      // Si la HP llega a 0, eliminar o marcar como muerta
+      });
+  
+      if (errors) throw new Error('Error al atacar la pieza');
+  
+      // Si la HP llega a 0, marcar como muerta
       if (newHp <= 0) {
-        await piecesService.deletePiece(pieceId)
+        await graphqlService.mutate({
+          mutation: MARK_PIECE_AS_DEAD,
+          variables: {
+            id: pieceId,
+          },
+        });
       }
-
+  
       return {
         id: data.update_pieces_by_pk.id,
         hp: data.update_pieces_by_pk.hp,
-      }
+      };
     } catch (error) {
       throw new Error(
         'Error al atacar: ' +
           (error instanceof Error ? error.message : String(error))
-      )
+      );
     }
   },
 
@@ -205,15 +210,19 @@ export const piecesService = {
    */
   canAttack: (attacker: Piece, target: Piece): boolean => {
     // Verificar que las piezas sean de jugadores diferentes
-    if (attacker.player_id === target.player_id) return false
-
+    if (attacker.player_id === target.player_id) return false;
+    
+    // Verificar que la pieza atacante y objetivo estén vivas
+    if (attacker.is_alive === false || target.is_alive === false || 
+        attacker.hp <= 0 || target.hp <= 0) return false;
+  
     // Calcular la distancia Manhattan entre las piezas
     const distance =
       Math.abs(attacker.pos_x - target.pos_x) +
-      Math.abs(attacker.pos_y - target.pos_y)
-
+      Math.abs(attacker.pos_y - target.pos_y);
+  
     // Verificar si el objetivo está dentro del rango de ataque
-    return distance <= attacker.range
+    return distance <= attacker.range;
   },
 
   /**

@@ -313,19 +313,19 @@ export const useGameplayStore = create<GameplayState>()(
       },
 
       performAttack: async () => {
-        const { attackingPiece, targetedPiece } = get()
-
+        const { attackingPiece, targetedPiece } = get();
+      
         if (!attackingPiece || !targetedPiece) {
           set((state) => {
             state.attackResult = {
               success: false,
               message: 'Selecciona una pieza atacante y un objetivo',
               damage: null,
-            }
-          })
-          return
+            };
+          });
+          return;
         }
-
+      
         // Verificar si puede atacar al objetivo
         if (!piecesService.canAttack(attackingPiece, targetedPiece)) {
           set((state) => {
@@ -333,40 +333,45 @@ export const useGameplayStore = create<GameplayState>()(
               success: false,
               message: 'El objetivo está fuera de rango',
               damage: null,
-            }
-          })
-          return
+            };
+          });
+          return;
         }
-
+      
         try {
           // Calcular el daño
-          const damage = piecesService.calculateDamage(attackingPiece)
-
+          const damage = piecesService.calculateDamage(attackingPiece);
+      
+          // Verificar si el daño es suficiente para matar a la pieza
+          const willDie = targetedPiece.hp <= damage;
+      
           // Realizar el ataque
           if (targetedPiece.id) {
-            await piecesService.attackPiece(targetedPiece.id, damage)
+            await piecesService.attackPiece(targetedPiece.id, damage);
           } else {
-            throw new Error('Targeted piece ID is undefined')
+            throw new Error('ID de la pieza objetivo indefinido');
           }
-
+      
           set((state) => {
             state.attackResult = {
               success: true,
-              message: `Ataque exitoso! Se causaron ${damage} puntos de daño`,
+              message: willDie 
+                ? `¡Ataque mortal! Causaste ${damage} puntos de daño y has eliminado a la unidad enemiga.` 
+                : `¡Ataque exitoso! Causaste ${damage} puntos de daño. La unidad enemiga sobrevive con ${targetedPiece.hp - damage} HP.`,
               damage: damage,
-            }
+            };
             // Limpiar las selecciones después del ataque
-            state.attackingPiece = null
-            state.targetedPiece = null
-          })
+            state.attackingPiece = null;
+            state.targetedPiece = null;
+          });
         } catch (error) {
           set((state) => {
             state.attackResult = {
               success: false,
               message: error instanceof Error ? error.message : String(error),
               damage: null,
-            }
-          })
+            };
+          });
         }
       },
 
