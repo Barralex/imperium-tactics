@@ -1,3 +1,4 @@
+// src/types/index.ts
 export interface Match {
   id: string
   status: string
@@ -23,6 +24,9 @@ export interface MatchDetails {
   total_units: number
   turn?: string
 }
+
+// Define the unit type for the game
+export type UnitType = 'melee' | 'ranged' | 'normal'
 
 export interface UnitSelectionProps {
   isOpen: boolean
@@ -58,11 +62,12 @@ export type Piece = {
   id: string
   pos_x: number
   pos_y: number
-  type: 'melee' | 'ranged' | 'normal'
+  type: UnitType
   hp: number
   range: number
   movement?: number
   player_id?: string
   is_alive?: boolean
   match_id?: string
+  damage?: number
 }

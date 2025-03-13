@@ -9,8 +9,9 @@ import {
   ATTACK_PIECE,
   MARK_PIECE_AS_DEAD,
 } from '../graphql/matches'
-import { Piece } from '@/types'
+import { Piece, UnitType } from '@/types'
 import { ApolloError } from '@apollo/client'
+import { generateDeployPositions, getUnitStats } from '@/types/unit'
 
 // Define el tipo de la suscripción
 type Subscription = {
@@ -72,78 +73,17 @@ export const piecesService = {
   deployUnits: async (
     matchId: string,
     playerId: string,
-    units: {
-      melee: number
-      ranged: number
-      normal: number
-    },
+    units: Record<UnitType, number>,
     isHost: boolean
   ): Promise<void> => {
     try {
-      const piecesToInsert = []
-      let positionCounter = 0
-      const startY = isHost ? 15 : 0
-      const endY = isHost ? 19 : 4
-
-      // Crear unidades de tipo melee
-      for (let i = 0; i < units.melee; i++) {
-        const x = positionCounter % 20
-        const y = startY + Math.floor(positionCounter / 20)
-
-        if (y <= endY) {
-          piecesToInsert.push({
-            hp: 15,
-            player_id: playerId,
-            match_id: matchId,
-            pos_x: x,
-            pos_y: y,
-            range: 1,
-            movement: 5,
-            type: 'melee',
-          })
-        }
-        positionCounter++
-      }
-
-      // Crear unidades de tipo ranged
-      for (let i = 0; i < units.ranged; i++) {
-        const x = positionCounter % 20
-        const y = startY + Math.floor(positionCounter / 20)
-
-        if (y <= endY) {
-          piecesToInsert.push({
-            hp: 10,
-            player_id: playerId,
-            match_id: matchId,
-            pos_x: x,
-            pos_y: y,
-            range: 5,
-            movement: 3,
-            type: 'ranged',
-          })
-        }
-        positionCounter++
-      }
-
-      // Crear unidades de tipo normal
-      for (let i = 0; i < units.normal; i++) {
-        const x = positionCounter % 20
-        const y = startY + Math.floor(positionCounter / 20)
-
-        if (y <= endY) {
-          piecesToInsert.push({
-            hp: 12,
-            player_id: playerId,
-            match_id: matchId,
-            pos_x: x,
-            pos_y: y,
-            range: 3,
-            movement: 3,
-            type: 'normal',
-          })
-        }
-        positionCounter++
-      }
+      // Use the centralized function to generate deployment positions
+      const piecesToInsert = generateDeployPositions(
+        units,
+        isHost,
+        playerId,
+        matchId
+      )
 
       const { errors } = await graphqlService.mutate({
         mutation: INSERT_PIECES,
@@ -280,15 +220,15 @@ export const piecesService = {
    * Calcula el daño base según el tipo de unidad
    */
   calculateDamage: (attacker: Piece): number => {
-    switch (attacker.type) {
-      case 'melee':
-        return 5 // Las unidades melee hacen más daño
-      case 'ranged':
-        return 3 // Las unidades ranged hacen daño medio
-      case 'normal':
-        return 4 // Las unidades normales tienen daño equilibrado
-      default:
-        return 3
+    // Use the centralized configuration for damage values
+    if (
+      attacker.type &&
+      ['melee', 'ranged', 'normal'].includes(attacker.type)
+    ) {
+      return getUnitStats(attacker.type as UnitType).damage
     }
+
+    // Fallback default damage
+    return 3
   },
 }

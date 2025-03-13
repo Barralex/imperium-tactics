@@ -160,7 +160,7 @@ const MatchPage: React.FC = () => {
   }
 
   return (
-    <div className="text-white h-screen overflow-hidden">
+    <div className="text-white h-screen overflow-y-auto">
       <UnitSelection
         isOpen={isDeploymentModalOpen}
         onClose={closeDeploymentModal}
