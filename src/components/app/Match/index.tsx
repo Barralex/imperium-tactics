@@ -1,3 +1,4 @@
+// src/components/app/Match/index.tsx - Layout actualizado
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
@@ -13,7 +14,7 @@ import {
 import { useGameplayStore } from '@/stores'
 import LoadingScreen from './UI/LoadingScreen'
 import UnitSelection from './Modals/UnitSelection'
-import Board from './Board'
+import Board from './Board' // Usamos el componente Board existente
 import { UPDATE_MATCH } from '@/graphql/matches'
 import AttackControls from './CombatSystem/AttackControls'
 
@@ -31,7 +32,7 @@ const MatchPage: React.FC = () => {
   const { user } = useAuth0()
   const playerId = user?.['https://hasura.io/jwt/claims']?.['x-hasura-user-id']
 
-  // Añadir estado para seguir el ID del jugador con el turno actual
+  // Estado para seguir el ID del jugador con el turno actual
   const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState<
     string | undefined
   >(undefined)
@@ -167,8 +168,9 @@ const MatchPage: React.FC = () => {
     return <p className="text-center text-red-500">Error: {error.message}</p>
   }
 
+  // LAYOUT MODIFICADO: Reorganizamos para que el tablero ocupe la parte superior y los controles vayan abajo
   return (
-    <div className="text-white h-screen overflow-y-auto">
+    <div className="text-white h-screen flex flex-col overflow-hidden">
       <UnitSelection
         isOpen={isDeploymentModalOpen}
         onClose={closeDeploymentModal}
@@ -177,61 +179,68 @@ const MatchPage: React.FC = () => {
         playerId={playerId}
         playerId1={matchDetails?.player?.id}
       />
-
       <BackButton onClick={handleBackToLobby} />
-
       <Header
         title={matchDetails?.match_title || `Partida ${matchId}`}
         status={matchDetails?.status}
       />
-
-      <div className="max-w-5xl mx-auto px-4 mt-4 flex flex-col lg:flex-row gap-4">
-        <div className="lg:w-1/3 bg-gray-900/80 rounded-lg border border-gray-800 p-4">
-          <PlayersList
-            connectedPlayers={matchDetails}
-            onLeaveMatch={handleLeaveMatch}
-            leavingMatch={leavingMatch}
+      <div className="w-8"></div> {/* Espaciador para centrar el título */}
+      {/* Área del tablero - Ocupa la mayor parte del espacio disponible */}
+      <div className="flex-grow overflow-auto bg-gray-900/50">
+        <BattleArea
+          status={matchDetails?.status}
+          isActive={
+            matchDetails?.status === 'in_progress' ||
+            matchDetails?.status === 'deployment' ||
+            matchDetails?.status === 'finished'
+          }
+        >
+          <Board
+            currentPlayerId={playerId}
+            activeTurnPlayerId={currentTurnPlayerId}
+            matchDetails={matchDetails}
           />
-
-          <BattleCommands
-            status={matchDetails?.status}
-            hasOpponent={!!matchDetails?.playerByPlayer2Id}
-            totalUnits={matchDetails?.total_units}
-            onStartBattle={handleStartBattle}
-            onPhaseChange={handleUpdateBattle}
-            onDeployUnit={openDeploymentModal}
-            onEndTurn={handleEndTurn}
-            isHost={isHost}
-            loading={isStartingBattle}
-            hasDeployedUnits={hasDeployedUnits}
-            isMyTurn={playerId === currentTurnPlayerId}
-            currentTurn={1}
-          />
-
-          {/* Añadir los controles de ataque si estamos en fase de combate */}
-          {matchDetails?.status === 'in_progress' && (
-            <AttackControls
-              currentPlayerId={playerId}
-              isPlayerTurn={playerId === currentTurnPlayerId}
+        </BattleArea>
+      </div>
+      {/* Panel de control en la parte inferior */}
+      <div className="bg-gray-900 border-t border-amber-900/50 p-4">
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Información de jugadores */}
+          <div className="bg-gray-900/80 rounded-lg border border-gray-800 p-3">
+            <PlayersList
+              connectedPlayers={matchDetails}
+              onLeaveMatch={handleLeaveMatch}
+              leavingMatch={leavingMatch}
             />
-          )}
-        </div>
+          </div>
 
-        <div className="lg:w-2/3">
-          <BattleArea
-            status={matchDetails?.status}
-            isActive={
-              matchDetails?.status === 'in_progress' ||
-              matchDetails?.status === 'deployment' ||
-              matchDetails?.status === 'finished'
-            }
-          >
-            <Board
-              currentPlayerId={playerId}
-              activeTurnPlayerId={currentTurnPlayerId}
-              matchDetails={matchDetails}
+          {/* Comandos de batalla */}
+          <div className="bg-gray-900/80 rounded-lg border border-gray-800 p-3">
+            <BattleCommands
+              status={matchDetails?.status}
+              hasOpponent={!!matchDetails?.playerByPlayer2Id}
+              totalUnits={matchDetails?.total_units}
+              onStartBattle={handleStartBattle}
+              onPhaseChange={handleUpdateBattle}
+              onDeployUnit={openDeploymentModal}
+              onEndTurn={handleEndTurn}
+              isHost={isHost}
+              loading={isStartingBattle}
+              hasDeployedUnits={hasDeployedUnits}
+              isMyTurn={playerId === currentTurnPlayerId}
+              currentTurn={1}
             />
-          </BattleArea>
+          </div>
+
+          {/* Sistema de combate */}
+          <div className="bg-gray-900/80 rounded-lg border border-gray-800 p-3">
+            {matchDetails?.status === 'in_progress' && (
+              <AttackControls
+                currentPlayerId={playerId}
+                isPlayerTurn={playerId === currentTurnPlayerId}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>
