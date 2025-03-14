@@ -49,24 +49,30 @@ export const piecesService = {
     posY: number
   ): Promise<void> => {
     try {
-      const { errors } = await graphqlService.mutate({
+      await graphqlService.mutate({
         mutation: update_pieces_by_pk,
         variables: {
           id: pieceId,
           pos_x: posX,
           pos_y: posY,
         },
-      })
-
-      if (errors) throw new Error('Error al actualizar la posición de la pieza')
+        // Usa las opciones correctas para fetchPolicy
+        fetchPolicy: 'network-only',
+        refetchQueries: [
+          {
+            query: PIECES_SUBSCRIPTION,
+            variables: { matchId: localStorage.getItem('currentMatchId') }
+          }
+        ]
+      });
     } catch (error) {
       throw new Error(
         'Error al actualizar la posición: ' +
           (error instanceof Error ? error.message : String(error))
-      )
+      );
     }
   },
-
+  
   /**
    * Despliega unidades en el tablero
    */

@@ -19,6 +19,14 @@ import AttackControls from './CombatSystem/AttackControls'
 
 const MatchPage: React.FC = () => {
   const { matchId } = useParams<{ matchId: string }>()
+  useEffect(() => {
+    if (matchId) {
+      localStorage.setItem('currentMatchId', matchId)
+    }
+    return () => {
+      localStorage.removeItem('currentMatchId')
+    }
+  }, [matchId])
   const navigate = useNavigate()
   const { user } = useAuth0()
   const playerId = user?.['https://hasura.io/jwt/claims']?.['x-hasura-user-id']

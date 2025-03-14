@@ -1,7 +1,7 @@
 // src/services/graphqlService.ts
 import client from '@/lib/apolloClient'
 import { DocumentNode, GraphQLError } from 'graphql'
-import { FetchPolicy } from '@apollo/client'
+import { FetchPolicy, MutationFetchPolicy } from '@apollo/client'
 
 // Define el tipo de la suscripción
 type Subscription = {
@@ -45,11 +45,15 @@ export const graphqlService = {
   mutate: async <T>(options: {
     mutation: DocumentNode
     variables?: Record<string, unknown>
+    fetchPolicy?: FetchPolicy
+    refetchQueries?: Array<{ query: DocumentNode; variables?: Record<string, unknown> }>
   }): Promise<{ data: T; errors?: unknown }> => {
     try {
       const result = await client.mutate({
         mutation: options.mutation,
         variables: options.variables,
+        fetchPolicy: options.fetchPolicy as MutationFetchPolicy,
+        refetchQueries: options.refetchQueries,
       })
       return { data: result.data as T, errors: result.errors }
     } catch (error) {

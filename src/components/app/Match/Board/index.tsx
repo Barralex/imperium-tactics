@@ -50,6 +50,17 @@ const Board: React.FC<BoardProps> = ({
     }
   }, [data])
 
+  useEffect(() => {
+    if (data && data.pieces) {
+      const newPieceMap: Record<string, Piece> = {}
+      data.pieces.forEach((piece: Piece) => {
+        const key = `${piece.pos_x}-${piece.pos_y}`
+        newPieceMap[key] = piece
+      })
+      setPieceMap(newPieceMap)
+    }
+  }, [data])
+
   // Mutation para actualizar la posición de la pieza en la BD
   const [updatePiecePosition] = useMutation(update_pieces_by_pk)
 
@@ -58,27 +69,35 @@ const Board: React.FC<BoardProps> = ({
     newX: number,
     newY: number
   ) => {
-    // Obtener el estado actual de la partida desde matchDetails
-    const currentStatus = matchDetails?.status
-
-    // Si no es el turno del jugador, no permitir movimientos
-    if (!isPlayerTurn) return
-
-    // No permitir movimientos durante la fase de despliegue
-    if (currentStatus === 'deployment') {
-      console.log('No se pueden mover las piezas durante la fase de despliegue')
-      return
-    }
-
     try {
+      // Bloque de validaciones
+      if (!isPlayerTurn || matchDetails?.status === 'deployment') {
+        console.log('No se pueden mover las piezas')
+        return
+      }
+
+      // Verificar que no haya otra pieza en esa posición
+      const targetKey = `${newX}-${newY}`
+      if (pieceMap[targetKey]) {
+        console.log('Posición ocupada')
+        return
+      }
+
+      // Enviar la actualización a la BD
       await updatePiecePosition({
         variables: { id: pieceId, pos_x: newX, pos_y: newY },
       })
-      console.log('Posición actualizada')
+
+      // No es necesario actualizar pieceMap manualmente aquí
+      // La suscripción se encargará de eso
+
+      // Este log es solo para depuración
+      console.log(`Pieza ${pieceId} movida a (${newX}, ${newY})`)
     } catch (err) {
-      console.error('Error al actualizar la posición de la pieza:', err)
+      console.error('Error al actualizar posición:', err)
     }
   }
+
   const handleSelectPiece = (piece: Piece) => {
     // Solo permitir seleccionar piezas propias en tu turno
     if (piece.player_id === currentPlayerId && isPlayerTurn) {
